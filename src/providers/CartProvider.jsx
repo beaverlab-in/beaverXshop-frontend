@@ -84,6 +84,7 @@ export function CartProvider({ children }) {
   const remove = useCallback((slug) => dispatch({ type: "remove", slug }), []);
   const clear = useCallback(() => dispatch({ type: "clear" }), []);
   const setCouponCode = useCallback((code) => dispatch({ type: "coupon", code }), []);
+  const replace = useCallback((items, couponCode) => dispatch({ type: "hydrate", items, couponCode }), []);
 
   const value = useMemo(
     () => ({
@@ -92,12 +93,13 @@ export function CartProvider({ children }) {
       count: state.items.reduce((n, i) => n + i.qty, 0),
       couponCode: state.couponCode,
       setCouponCode,
+      replace,
       add,
       setQty,
       remove,
       clear,
     }),
-    [state.items, state.ready, state.couponCode, setCouponCode, add, setQty, remove, clear],
+    [state.items, state.ready, state.couponCode, setCouponCode, replace, add, setQty, remove, clear],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

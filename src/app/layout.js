@@ -6,6 +6,7 @@ import JsonLd from "@/components/site/JsonLd";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { CartProvider } from "@/providers/CartProvider";
+import CartSync from "@/components/site/CartSync";
 import { getPublicSettings } from "@/lib/data/settings";
 import { BRAND_NAME, SITE_URL } from "@/lib/env";
 import { organizationJsonLd } from "@/lib/seo";
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }) {
         <ToastProvider>
           <AuthProvider>
             <CartProvider>
+              <CartSync />
               {/* data-site-chrome lets the admin layout hide the shop header/footer (see app/admin/layout.js) */}
               <div data-site-chrome className="contents">
                 <Header />

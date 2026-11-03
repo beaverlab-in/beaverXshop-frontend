@@ -8,7 +8,7 @@ export function buildMetadata({ title, description = DEFAULT_DESCRIPTION, path =
   const url = absoluteUrl(path);
   const imageUrl = image ? (image.startsWith("http") ? image : absoluteUrl(image)) : absoluteUrl("/og-default.svg");
   return {
-    title,
+    ...(title ? { title } : {}),
     description,
     alternates: { canonical: url },
     openGraph: { title: title || BRAND_NAME, description, url, siteName: BRAND_NAME, type: "website", locale: "en_IN", images: [{ url: imageUrl }] },

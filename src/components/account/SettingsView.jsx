@@ -11,7 +11,10 @@ import { formatMobile, isValidEmail } from "@/lib/validation";
 export default function SettingsView() {
   const { user, updateProfile } = useAuth();
   const toast = useToast();
-  const [form, setForm] = useState({ name: user?.name ?? "", email: user?.email ?? "" });
+  // Only edits live in state; the rest follows the signed-in user (hidden pages stay mounted, so copying would go stale).
+  const [edits, setEdits] = useState({});
+  const form = { name: edits.name ?? user?.name ?? "", email: edits.email ?? user?.email ?? "" };
+  const setForm = (next) => setEdits({ name: next.name, email: next.email });
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
 

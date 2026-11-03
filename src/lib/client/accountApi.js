@@ -53,6 +53,11 @@ export async function updateProfile({ name, email }) {
   return user;
 }
 
+// ---------- Server cart (API mode only; the demo uses the browser cart alone) ----------
+export const fetchServerCart = () => apiFetch("/cart");
+export const mergeServerCart = (items) => apiFetch("/cart/merge", { method: "POST", body: { items } });
+export const saveServerCart = (items, couponCode) => apiFetch("/cart", { method: "PUT", body: { items, couponCode } });
+
 // ---------- Addresses ----------
 export async function listAddresses() {
   if (!IS_DEMO) return apiFetch("/me/addresses");

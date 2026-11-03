@@ -129,7 +129,7 @@ export default async function HomePage() {
           <ol className="grid gap-4">
             {steps.map((s) => (
               <li key={s.n} className="flex gap-5 rounded-card border border-line bg-surface p-6 shadow-card">
-                <span className="font-display text-3xl font-extrabold text-accent tabular-nums">{s.n}</span>
+                <span className="font-display text-3xl font-extrabold text-[#8a5a00] tabular-nums">{s.n}</span>
                 <div>
                   <h3 className="text-xl font-bold">{s.title}</h3>
                   <p className="mt-1 text-muted">{s.text}</p>

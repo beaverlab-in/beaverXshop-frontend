@@ -83,7 +83,11 @@ export default function CheckoutFlow() {
   const [paymentMethod, setPaymentMethod] = useState("online");
   const [addressId, setAddressId] = useState("");
   const [addingAddress, setAddingAddress] = useState(false);
-  const [details, setDetails] = useState({ name: user?.name ?? "", email: user?.email ?? "" });
+  // Only what the shopper has typed is kept in state; everything else follows the signed-in user. (Pages stay mounted
+  // while hidden, so copying `user` into state at mount time would freeze a stale value, e.g. an empty name.)
+  const [edits, setEdits] = useState({});
+  const details = { name: edits.name ?? user?.name ?? "", email: edits.email ?? user?.email ?? "" };
+  const setDetails = (next) => setEdits({ name: next.name, email: next.email });
   const [detailErrors, setDetailErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const [payError, setPayError] = useState("");

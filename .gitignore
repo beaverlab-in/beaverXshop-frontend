@@ -42,3 +42,10 @@ next-env.d.ts
 
 # keep the committed example
 !.env.example
+
+# build variants and test output
+/.next-demo/
+/.next-api/
+/e2e/.output/
+/test-results/
+/playwright-report/
