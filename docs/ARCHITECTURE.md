@@ -130,3 +130,7 @@ Routes under `/admin`: dashboard (date presets + custom range, KPIs, revenue cha
 How it works: the admin area **always uses the real API** (no demo mode; it shows a notice when `NEXT_PUBLIC_DATA_SOURCE=placeholder`). Access = a role on the normal mobile + OTP account; `AdminGate` is only a convenience and the backend enforces every permission. The storefront header/footer are hidden on `/admin` by a server-rendered style rule (a `usePathname` approach broke prerendering of dynamic routes). Sensitive actions (refunds, team changes) show a "sign in again" prompt when the backend asks for a fresh login.
 
 Not built / known gaps: image **upload** to cloud storage (images are entered as a key or link); PDF reports; WhatsApp notification templates/history (Phase 6); the admin UI has been lint/build-verified and its API contract checked against the live backend, but **not clicked through in a browser** (browser tool unavailable).
+
+## 12. Phase 6 as-built (admin notifications)
+
+`/admin/notifications` is now a working screen: a mode banner (simulated / not connected / live), counters, **History** (filters, last error, retry, "send queued now") and **Templates** (provider template name, language, approval status, preview text, on/off). Settings > Integrations shows the real WhatsApp and shipping state. The customer side needed no change: courier, tracking number and the order timeline already come from the shipment record.

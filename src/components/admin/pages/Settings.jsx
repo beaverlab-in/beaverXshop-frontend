@@ -230,7 +230,7 @@ function IntegrationsTab() {
       <ul className="divide-y divide-line">
         <IntegrationRow name="Razorpay payments" ok={data.razorpay.configured}>{data.razorpay.configured ? `Key ${data.razorpay.keyIdPreview}. Webhook secret ${data.razorpay.webhookSecretSet ? "is set" : "is NOT set: payments will not be confirmed reliably"}.` : "Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to the server environment. Until then, customers can only pay by cash on delivery (if enabled)."}</IntegrationRow>
         <IntegrationRow name="WhatsApp (OTP and order messages)" ok={data.whatsapp.configured}>{data.whatsapp.note} Login code mode: <strong>{data.whatsapp.otpMode}</strong>.</IntegrationRow>
-        <IntegrationRow name="Shipping" ok>{data.shipping.note}</IntegrationRow>
+        <IntegrationRow name="Shipping" ok={data.shipping.configured}>{data.shipping.note}</IntegrationRow>
         <IntegrationRow name="Media storage (Cloudflare R2)" ok={data.storage.configured}>{data.storage.configured ? data.storage.mediaBaseUrl : "MEDIA_BASE_URL is not set. Images are referenced by link or key."}</IntegrationRow>
       </ul>
       <p className="px-5 py-4 text-xs text-muted">Secrets are never shown here. They live only in the server environment.</p>
