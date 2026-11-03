@@ -29,3 +29,17 @@ export function formatINR(paise) {
 export function formatRate(rateBp) {
   return `${rateBp / 100}%`;
 }
+
+/** 149900 -> "1499.00" (for editable inputs). */
+export function paiseToRupeesInput(paise) {
+  if (paise === undefined || paise === null || paise === "") return "";
+  return `${Math.floor(paise / 100)}.${String(paise % 100).padStart(2, "0")}`;
+}
+
+/** "1499.5" -> 149950. Returns null for anything that isn't a plain amount with at most 2 decimals. */
+export function rupeesInputToPaise(input) {
+  const s = String(input ?? "").trim();
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  const [whole, frac = ""] = s.split(".");
+  return Number(whole) * 100 + Number(frac.padEnd(2, "0"));
+}

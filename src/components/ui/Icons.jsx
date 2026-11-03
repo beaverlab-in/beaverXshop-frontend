@@ -95,3 +95,39 @@ export const MapPinIcon = make(
 export const PackageIcon = make(<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5zM3.5 7.5L12 12l8.5-4.5M12 12v9" />);
 export const DownloadIcon = make(<path d="M12 4v11M7 11l5 5 5-5M5 20h14" />);
 export const ExternalIcon = make(<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />);
+
+// ---- admin panel icons ----
+export const DashboardIcon = make(<path d="M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z" />);
+export const ListIcon = make(<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />);
+export const TagIcon = make(
+  <>
+    <path d="M3 12V4h8l10 10-8 8z" />
+    <circle cx="7.5" cy="8.5" r="1.2" />
+  </>,
+);
+export const BoxesIcon = make(<path d="M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8" />);
+export const UsersIcon = make(
+  <>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6" />
+  </>,
+);
+export const ReceiptIcon = make(<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" />);
+export const ChartIcon = make(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />);
+export const SettingsIcon = make(
+  <>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8" />
+  </>,
+);
+export const ShieldIcon = make(<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />);
+export const BellIcon = make(<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4" />);
+export const SearchIcon = make(
+  <>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="M16 16l4.5 4.5" />
+  </>,
+);
+export const LogoutIcon = make(<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9" />);
+export const StoreIcon = make(<path d="M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9a3 3 0 0 0 5.3 1.9A3 3 0 0 0 14.7 10.9 3 3 0 0 0 20 9M10 20v-5h4v5" />);
+export const MessageIcon = make(<path d="M4 5h16v11H9l-5 4z" />);

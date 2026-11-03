@@ -33,11 +33,16 @@ export default async function RootLayout({ children }) {
         <ToastProvider>
           <AuthProvider>
             <CartProvider>
-              <Header />
+              {/* data-site-chrome lets the admin layout hide the shop header/footer (see app/admin/layout.js) */}
+              <div data-site-chrome className="contents">
+                <Header />
+              </div>
               <main id="main" className="flex-1">
                 {children}
               </main>
-              <Footer />
+              <div data-site-chrome className="contents">
+                <Footer />
+              </div>
             </CartProvider>
           </AuthProvider>
         </ToastProvider>

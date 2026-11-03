@@ -122,3 +122,11 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 ## 10. Decision: admin uses the same login (Phase 5 impact)
 
 Admins sign in through the normal `/login` (mobile + OTP); the same account can shop. After login `GET /auth/me` includes `role` and `permissions`; the admin area appears for accounts that have a role. No separate admin login page. The existing `AuthProvider` user object will carry `role` and `permissions` once API mode is connected (the demo mode has no staff role).
+
+## 11. Phase 5 as-built (admin UI)
+
+Routes under `/admin`: dashboard (date presets + custom range, KPIs, revenue chart, best sellers, recent orders and activity), orders (filters, search, detail with status actions, shipment, cancel, refund, COD collection, invoice), products (list, create/edit form covering every field in the brief, archive), categories, inventory (adjust + history), customers (list/detail/block), coupons, reports (7 types + CSV), settings (company, tax/shipping/COD, invoices, legal pages, SEO, integrations status), team (add staff, change/remove role), audit log, notifications (honest "WhatsApp not connected" page). Shell: sidebar filtered by permissions, top bar with search, notification bell, profile menu, breadcrumbs, mobile drawer. Primitives: tables with skeleton/empty/error states, pagination, native-`<dialog>` modals and confirmations, toasts, tabs, SVG bar chart.
+
+How it works: the admin area **always uses the real API** (no demo mode; it shows a notice when `NEXT_PUBLIC_DATA_SOURCE=placeholder`). Access = a role on the normal mobile + OTP account; `AdminGate` is only a convenience and the backend enforces every permission. The storefront header/footer are hidden on `/admin` by a server-rendered style rule (a `usePathname` approach broke prerendering of dynamic routes). Sensitive actions (refunds, team changes) show a "sign in again" prompt when the backend asks for a fresh login.
+
+Not built / known gaps: image **upload** to cloud storage (images are entered as a key or link); PDF reports; WhatsApp notification templates/history (Phase 6); the admin UI has been lint/build-verified and its API contract checked against the live backend, but **not clicked through in a browser** (browser tool unavailable).

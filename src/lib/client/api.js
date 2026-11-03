@@ -22,7 +22,8 @@ async function ensureCsrf() {
   return csrfToken;
 }
 
-export async function apiFetch(path, { method = "GET", body } = {}) {
+/** `full: true` returns { data, meta } (for paginated lists) instead of just `data`. */
+export async function apiFetch(path, { method = "GET", body, full = false } = {}) {
   const headers = { Accept: "application/json" };
   if (method !== "GET") {
     headers["Content-Type"] = "application/json";
@@ -48,5 +49,20 @@ export async function apiFetch(path, { method = "GET", body } = {}) {
       fields: json?.error?.fields,
     });
   }
-  return json?.data;
+  return full ? { data: json?.data, meta: json?.meta } : json?.data;
+}
+
+/** Binary responses (PDF invoices, CSV reports): returns the Blob. Same cookie + error handling as apiFetch. */
+export async function apiBlob(path) {
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, { credentials: "include" });
+  } catch {
+    throw new ApiError("Network problem. Check your connection and try again.", { code: "NETWORK" });
+  }
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new ApiError(json?.error?.message || "Could not download the file.", { status: res.status, code: json?.error?.code });
+  }
+  return res.blob();
 }
