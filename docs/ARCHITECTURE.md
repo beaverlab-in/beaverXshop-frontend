@@ -118,3 +118,7 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 **Known limitation:** unknown product/legal slugs show the 404 UI with `noindex` but return HTTP 200 (Partial Prefetching streams the shell first; `dynamicParams` is unavailable under Cache Components).
 
 **Verification done:** `npm run lint` (0 problems), `npm run build` (all routes prerender/partial-prerender), `npm test` (9 unit tests: money/GST rounding, mobile/PIN/address validation), production server smoke test (status codes, single H1, canonical, JSON-LD, noindex on private/unpublished pages, sitemap, robots, llms.txt, security headers, `/api/revalidate` rejects missing secret). **Not yet verified in a browser:** cart → checkout → confirmation interaction, mobile layout (the browser tool disconnected mid-session).
+
+## 10. Decision: admin uses the same login (Phase 5 impact)
+
+Admins sign in through the normal `/login` (mobile + OTP); the same account can shop. After login `GET /auth/me` includes `role` and `permissions`; the admin area appears for accounts that have a role. No separate admin login page. The existing `AuthProvider` user object will carry `role` and `permissions` once API mode is connected (the demo mode has no staff role).
