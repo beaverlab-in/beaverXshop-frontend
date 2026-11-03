@@ -6,6 +6,9 @@ import fs from "node:fs";
 const SHOTS = "e2e/.output/screenshots";
 fs.mkdirSync(SHOTS, { recursive: true });
 
+const API_PORT = process.env.E2E_API_PORT || 4000;
+const SIDE_PORT = process.env.E2E_SIDE_PORT || 4001; // the harness's test-only OTP / reset channel
+
 const ADMIN = "9000000001";
 const SHOPPER = "9222222222";
 const STAFF2 = "9000000002";
@@ -15,7 +18,7 @@ const shared = { orderNumber: "" };
 
 async function latestCode(mobile) {
   for (let i = 0; i < 20; i++) {
-    const { otp } = await (await fetch(`http://localhost:4001/otp/${mobile}`)).json();
+    const { otp } = await (await fetch(`http://localhost:${SIDE_PORT}/otp/${mobile}`)).json();
     if (otp) return otp;
     await new Promise((r) => setTimeout(r, 250));
   }
@@ -44,7 +47,7 @@ test.describe.configure({ mode: "serial" });
 
 test.beforeAll(async ({ browser }, info) => {
   // Clean database + rate limits for every run (test-only harness endpoint).
-  await fetch("http://localhost:4001/reset");
+  await fetch(`http://localhost:${SIDE_PORT}/reset`);
   const baseURL = info.project.use.baseURL;
   for (const key of ["admin", "shopper", "guest", "staff2"]) {
     contexts[key] = await browser.newContext({ baseURL, viewport: { width: 1280, height: 900 } });
@@ -57,6 +60,10 @@ test.afterAll(async () => {
 
 test("an ordinary shopper cannot use the admin panel, and the storefront reads live API data", async () => {
   const p = pages.shopper;
+  await p.goto("/");
+  await expect(p.getByRole("heading", { level: 1, name: "Turn Curiosity Into Creation." })).toBeVisible();
+  await expect(p.getByRole("heading", { level: 2, name: "Best Sellers" }).or(p.getByRole("heading", { level: 2, name: "Start Here" }))).toBeVisible();
+  await expect(p.getByText("Sample product")).toHaveCount(0); // live data, not the demo set
   await p.goto("/products");
   await expect(p.getByRole("heading", { name: "Walker Robot Kit" })).toBeVisible();
   await loginAs(p, SHOPPER, { name: "Ravi Kumar" });
@@ -64,7 +71,7 @@ test("an ordinary shopper cannot use the admin panel, and the storefront reads l
   await p.goto("/admin");
   await expect(p.getByRole("heading", { name: "This area is for store staff" })).toBeVisible();
   // and the API itself refuses, not just the screen
-  const status = await p.evaluate(async () => (await fetch("http://localhost:4000/api/v1/admin/products", { credentials: "include" })).status);
+  const status = await p.evaluate(async (port) => (await fetch(`http://localhost:${port}/api/v1/admin/products`, { credentials: "include" })).status, API_PORT);
   expect(status).toBe(403);
 });
 
@@ -104,6 +111,7 @@ test("admin creates a category and a product through the forms; the storefront s
   await p.getByLabel("Selling price (₹)").fill("499");
   await p.getByLabel("HSN code").fill("9023");
   await p.getByLabel("Opening stock").fill("10");
+  await p.getByLabel(/Featured product/).check(); // the Homepage panel
   // validation: a bad price is explained, not silently accepted
   await p.getByLabel("Selling price (₹)").fill("49.999");
   await p.getByRole("button", { name: "Create product" }).click();
@@ -120,6 +128,9 @@ test("admin creates a category and a product through the forms; the storefront s
   await expect(s.getByRole("heading", { name: "E2E Widget", level: 1 })).toBeVisible();
   await expect(s.getByText("₹499").first()).toBeVisible();
   await expect(s.getByText("Sample product")).toHaveCount(0); // real products carry no sample badge
+  // the admin flag reaches the public API (the homepage spotlight reads it)
+  const pub = await (await fetch(`http://localhost:${API_PORT}/api/v1/catalog/products/e2e-widget`)).json();
+  expect(pub.data).toMatchObject({ isFeatured: true, isBestSeller: false });
 });
 
 test("a guest's cart is merged into the saved cart on login and survives clearing the browser", async () => {

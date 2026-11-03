@@ -61,9 +61,8 @@ export default async function ProductPage({ params }) {
 
   const [related, settings] = await Promise.all([getRelatedProducts(product), getPublicSettings()]);
   const crumbs = [
-    { label: "Home", href: "/" },
     { label: "Products", href: "/products" },
-    ...(product.category ? [{ label: product.category.name, href: `/products#${product.category.slug}` }] : []),
+    ...(product.category ? [{ label: product.category.name, href: `/products?category=${product.category.slug}` }] : []),
     { label: product.title, href: `/products/${product.slug}` },
   ];
 

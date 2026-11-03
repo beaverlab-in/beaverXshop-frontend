@@ -10,7 +10,7 @@ export async function GET() {
     "> Educational electronics, robotics and IoT products that help students learn by building.",
     "",
     "## Key pages",
-    `- [Products](${absoluteUrl("/products")}): the full product range`,
+    `- [All products](${absoluteUrl("/products")}): the full product range`,
     `- [About](${absoluteUrl("/about")}): who we are`,
     `- [FAQ](${absoluteUrl("/faq")}): ordering, payment, tracking and invoices`,
     `- [Contact](${absoluteUrl("/contact")}): ask us a question`,

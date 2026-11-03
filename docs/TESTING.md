@@ -6,13 +6,13 @@ Everything below runs on a normal developer machine: no Docker, no real MongoDB 
 |---|---|---|
 | Frontend unit | `npm test` (this repo) | money and GST rounding, mobile/PIN/address validation |
 | Backend (165 tests) | `npm test` (backend repo) | auth and OTP limits, CSRF, RBAC on every admin route, catalog, addresses, cart, quote, orders, stock races, Razorpay verify and webhooks, refunds, GST engine, invoices and PDF, admin operations, reports and CSV, notifications, shipping adapters |
-| Browser, demo mode (24) | `npm run e2e:demo` | storefront without a backend: layout at 375/768/1280 px, mobile menu, skip link, cart, coupon, a full demo checkout, 404, contact form, **axe accessibility with colour contrast on 10 pages** |
+| Browser, demo mode (39) | `npm run e2e:demo` | storefront without a backend: **the editorial homepage** (hero is compact and shows products at 375 and 1280 px, featured spotlight and Buy Now, category cards, best sellers, recently added, learning section) and **the /products catalog** (category tabs, sort, in-page search, header search, add to cart), layout at 375/768/1280 px, mobile menu, skip link, cart, coupon, a full demo checkout, 404, contact form, **axe accessibility with colour contrast on 11 pages** |
 | Browser, full stack (22) | `npm run e2e:api` | storefront + **admin panel** against the real backend: shopper blocked from admin, admin login by OTP, creating a category and product in the forms, guest-cart merge on login, COD checkout, order lifecycle with GST/invoice/tracking, shopper sees tracking and downloads the invoice, notifications, CSV download, staff roles, inventory, phone layout, **axe on 11 admin pages** |
 
 ## Running the full-stack browser suite
 
 1. In the **backend** repo: `npm run e2e:harness` and leave it running. It starts the real API on `:4000` with throwaway in-memory databases, seeded with a super admin (`9000000001`), the sample catalog and test store settings, plus a **test-only** side channel on `:4001` (`/otp/<mobile>` returns the last login code; `/reset` wipes and re-seeds).
-2. In the **frontend** repo: `npm run e2e:api`. It builds the API-mode storefront into `.next-api`, starts it on `:3400`, runs the tests, and stops it. The suite resets the harness first, so it is repeatable.
+2. In the **frontend** repo: `npm run e2e:api`. It builds the API-mode storefront into `.next-api`, starts it on `:3400`, runs the tests, and stops it. The suite resets the harness first, so it is repeatable. If the default ports are taken, start the harness with `PORT=4100 E2E_SIDE_PORT=4101 npm run e2e:harness` and run the suite with `E2E_API_PORT=4100 E2E_SIDE_PORT=4101 npm run e2e:api`.
 3. Demo mode needs no harness: `npm run e2e:demo` (builds into `.next-demo`, serves on `:3300`).
 
 Screenshots from the runs are written to `e2e/.output/screenshots/` (git-ignored). Use `npx playwright test --headed` to watch.

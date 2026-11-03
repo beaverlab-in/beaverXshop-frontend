@@ -72,3 +72,36 @@ export async function getRelatedProducts(product, limit = 3) {
   const merged = [...byRelated, ...sameCategory].filter((p, i, arr) => arr.findIndex((x) => x.slug === p.slug) === i);
   return merged.slice(0, limit).map((p) => attachCategory(p, categories));
 }
+
+const RECENT_DAYS = 60;
+
+/**
+ * What the homepage shows beyond the plain catalog, all from real product data:
+ *  - featured: the admin-flagged spotlight (first in-stock flagged one), else the first in-stock product in store order
+ *  - bestSellers: admin-flagged "best seller" products (up to 4); `curated` is false when nothing is flagged and we fall back to the first in-stock products
+ *  - recent: published within the last 60 days, newest first, not already shown above (empty means the section is hidden)
+ */
+export async function getHomeSections() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products", "categories");
+  const { categories, products } = await loadAll();
+  const all = products.map((p) => attachCategory(p, categories));
+  const inStock = all.filter((p) => p.stock > 0);
+
+  const featured = inStock.find((p) => p.isFeatured) ?? all.find((p) => p.isFeatured) ?? inStock[0] ?? all[0] ?? null;
+  const others = all.filter((p) => p.slug !== featured?.slug);
+
+  let bestSellers = others.filter((p) => p.isBestSeller).slice(0, 4);
+  const curated = bestSellers.length > 0;
+  if (!curated) bestSellers = others.filter((p) => p.stock > 0).slice(0, 4);
+
+  const shown = new Set([featured?.slug, ...bestSellers.map((p) => p.slug)]);
+  const cutoff = Date.now() - RECENT_DAYS * 86_400_000;
+  const recent = all
+    .filter((p) => !shown.has(p.slug) && p.createdAt && new Date(p.createdAt).getTime() >= cutoff)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 4);
+
+  return { featured, bestSellers, curated, recent };
+}

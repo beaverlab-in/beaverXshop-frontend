@@ -10,8 +10,7 @@ export default function NotFound() {
       <h1 className="mt-3 text-5xl font-extrabold text-brand">We couldn&apos;t find that page</h1>
       <p className="mx-auto mt-4 max-w-md text-lg text-muted">The link may be broken or the page may have moved. Let&apos;s get you back to building.</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button href="/" size="lg">Go to the homepage</Button>
-        <Button href="/products" variant="secondary" size="lg">Browse products</Button>
+        <Button href="/" size="lg">Back to the store</Button>
       </div>
     </Container>
   );

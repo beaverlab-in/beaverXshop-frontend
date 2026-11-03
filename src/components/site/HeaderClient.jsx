@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/providers/CartProvider";
 import { useAuth } from "@/providers/AuthProvider";
+import SearchButton from "@/components/site/SearchButton";
 import { CartIcon, CloseIcon, MenuIcon, UserIcon } from "@/components/ui/Icons";
 
 function isActive(pathname, href) {
   if (href.includes("#")) return false;
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/products") return pathname === href || pathname.startsWith(`${href}/`) || pathname === "/search";
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function NavLinks({ links }) {
@@ -44,6 +46,7 @@ export function HeaderActions() {
   const iconBtn = "relative grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-tint/60 hover:text-brand";
   return (
     <div className="flex items-center gap-1">
+      <SearchButton className={iconBtn} />
       <Link href={status === "authed" ? "/account" : "/login"} className={iconBtn} aria-label={status === "authed" ? "My account" : "Log in"}>
         <UserIcon className="size-[22px]" />
       </Link>

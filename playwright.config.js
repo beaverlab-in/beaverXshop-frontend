@@ -11,7 +11,7 @@ import { defineConfig } from "@playwright/test";
 const target = process.env.E2E_TARGET || "demo";
 const servers = {
   demo: { port: 3300, dist: ".next-demo", env: {} },
-  api: { port: 3400, dist: ".next-api", env: { NEXT_PUBLIC_DATA_SOURCE: "api", NEXT_PUBLIC_API_URL: "http://localhost:4000/api/v1", NEXT_PUBLIC_SITE_URL: "http://localhost:3400" } },
+  api: { port: 3400, dist: ".next-api", env: { NEXT_PUBLIC_DATA_SOURCE: "api", NEXT_PUBLIC_API_URL: `http://localhost:${process.env.E2E_API_PORT || 4000}/api/v1`, NEXT_PUBLIC_SITE_URL: "http://localhost:3400" } },
 };
 const s = servers[target];
 

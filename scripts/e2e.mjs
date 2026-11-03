@@ -13,14 +13,15 @@ const common = { ...process.env, E2E_TARGET: target };
 const build =
   target === "demo"
     ? { NEXT_DIST_DIR: ".next-demo" }
-    : { NEXT_DIST_DIR: ".next-api", NEXT_PUBLIC_DATA_SOURCE: "api", NEXT_PUBLIC_API_URL: "http://localhost:4000/api/v1", NEXT_PUBLIC_SITE_URL: "http://localhost:3400" };
+    : { NEXT_DIST_DIR: ".next-api", NEXT_PUBLIC_DATA_SOURCE: "api", NEXT_PUBLIC_API_URL: `http://localhost:${process.env.E2E_API_PORT || 4000}/api/v1`, NEXT_PUBLIC_SITE_URL: "http://localhost:3400" };
 
 if (target === "api") {
+  const apiPort = process.env.E2E_API_PORT || 4000;
   try {
-    const res = await fetch("http://localhost:4000/health/ready");
+    const res = await fetch(`http://localhost:${apiPort}/health/ready`);
     if (!res.ok) throw new Error(String(res.status));
   } catch {
-    console.error("The backend harness isn't running on :4000. In beaverXshop-backend run: npm run e2e:harness");
+    console.error(`The backend harness isn't running on :${apiPort}. In beaverXshop-backend run: npm run e2e:harness (set PORT and E2E_SIDE_PORT to use other ports, and E2E_API_PORT / E2E_SIDE_PORT here)`);
     process.exit(2);
   }
 }

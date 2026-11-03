@@ -64,11 +64,11 @@ beaverxshop-frontend/
 
 ## 4. Page plans (high level)
 
-**Nav**: logo · Home · Products · Learning · About · Contact · account icon · cart icon (count). *"Learning" has no page in the agreed essential list, so it links to the homepage `#learning` section until a page exists – no dead links.* Mobile: full-screen menu. Sticky header with hairline border on scroll.
+**Nav**: logo · Products · Learning Resources · About Us · Contact · search icon · account icon · cart icon (count). *"Learning Resources" has no page of its own, so it links to the compact `#learning` section at the bottom of the store.* Mobile: slide-down menu with the search, account and cart icons always visible. Sticky header with hairline border on scroll.
 
-**Home** (Server): Hero ("Build. Explore. Learn. Create." + two CTAs, product composition built from SVG/placeholder or real photo when provided) → Categories (only categories with products) → Featured products (3–6 cards, max) → Why choose us (5 items, icon + one line) → Learning experience (3-step: Build → Code → Understand, with real product references) → Final CTA → Footer (company info from settings, nav, support, legal links, social, contact).
+**Home `/`** (Server): an editorial storefront, not a product list. Compact hero (eyebrow, "Turn Curiosity Into Creation.", two CTAs, a studio composition of up to three real product images) → Featured product spotlight (dark panel: large image, tagline, key features, price, stock, Explore Product + Buy Now) → Product ecosystem (category cards, an asymmetric bento when there are exactly four) → Best Sellers (3-4 cards) → Learning through hardware (Electronics, Programming, IoT, Robotics) → Recently Added (only when products were published in the last 60 days) → Footer. Selection comes from `getHomeSections()` in `lib/data/catalog.js` and uses admin flags, never invented data: featured = first in-stock product flagged `isFeatured` (else the first in-stock product); best sellers = products flagged `isBestSeller` (when none are flagged the row is titled "Start Here" and shows the first in-stock products); recently added = `createdAt` within 60 days, excluding anything already shown. Admins set the flags in the product form's Homepage panel.
 
-**Products**: category filter as pill tabs (single control; no sort/filter overload), simple grid of `ProductCard`s grouped by category, paginated server-side.
+**Catalog `/products`**: discovery only. Category tabs, an in-page search box, a sort menu (Featured, price low to high / high to low, name) and the full grid. All three controls live in the URL (`/products?category=robotics&sort=price-asc&q=kit`) so views are linkable and product breadcrumbs can return to them. The server HTML always contains every product; the controls only hide cards once the page is interactive. **Search**: the header icon opens a dialog and goes to `/search?q=…` (server-side word match over name, description, category, features).
 
 **PDP**: gallery (thumbs + zoom, keyboard accessible) · title, intro, price (+compare-at if set), stock badge, qty stepper, Add to Cart, Buy Now · sticky mobile buy bar · tabbed/anchored sections: Overview/Features, What you can build, Learning outcomes, What's in the box, Specifications, Compatibility, Resources (only if present), Warranty (only if configured), FAQ accordion · Related products · JSON-LD Product + Breadcrumb. Sections with no data are omitted, not stubbed.
 
@@ -107,7 +107,7 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 - Tailwind v4: tokens live in `@theme` inside `globals.css` (no `tailwind.config.js`).
 - Fonts: Plus Jakarta Sans (headings) + Inter (body) via `next/font/google`.
 - `/login` is a single mobile + OTP flow; sign-up is implicit and a first-time user is asked for a name.
-- Products page groups by category with anchor links and has no pagination or filters (limited catalog by design); add pagination when the catalog grows.
+- The catalog has no pagination (limited catalog by design); add it, and move filtering and sorting server-side, when the catalog grows.
 - Cart page and checkout price via a **Server Action** (`getQuoteAction`), mirroring backend `POST /checkout/quote`.
 - Checkout steps: Your details → Delivery address → Review → Payment (online/COD per quote) → Confirmation.
 - Razorpay launcher exists (`src/lib/client/razorpay.js`) but is **not exercised** until the backend exists. The browser callback is never treated as proof of payment; it is sent to `/payments/verify`.

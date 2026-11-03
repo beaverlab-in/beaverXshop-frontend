@@ -21,7 +21,7 @@ export default function Logo({ inverted = false, className = "" }) {
       ) : (
         <Mark />
       )}
-      <span className={`font-display text-lg font-bold tracking-tight ${inverted ? "text-white" : "text-brand"}`}>
+      <span className={`font-display text-base leading-tight font-bold tracking-tight min-[400px]:text-lg ${inverted ? "text-white" : "text-brand"}`}>
         {BRAND_NAME}
       </span>
     </Link>

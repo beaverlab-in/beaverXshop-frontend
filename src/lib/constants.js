@@ -1,9 +1,8 @@
 export const NAV_LINKS = [
-  { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
-  // No standalone Learning page yet: points at the homepage section so there is no dead link.
-  { href: "/#learning", label: "Learning" },
-  { href: "/about", label: "About" },
+  // No standalone learning page yet: points at the "Learning through hardware" section on the homepage, so there is no dead link.
+  { href: "/#learning", label: "Learning Resources" },
+  { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ];
 

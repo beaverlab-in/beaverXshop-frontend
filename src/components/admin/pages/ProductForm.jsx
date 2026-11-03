@@ -17,7 +17,7 @@ const lines = (text) => text.split("\n").map((s) => s.trim()).filter(Boolean);
 
 const blank = {
   title: "", slug: "", sku: "", categoryId: "", tagline: "", description: "", price: "", compareAt: "", gstRatePercent: "18", hsnCode: "",
-  stock: "0", lowStockThreshold: "5", status: "draft", sortOrder: "0", seoTitle: "", seoDescription: "", compatibility: "", warranty: "",
+  stock: "0", lowStockThreshold: "5", status: "draft", sortOrder: "0", isFeatured: false, isBestSeller: false, seoTitle: "", seoDescription: "", compatibility: "", warranty: "",
   features: "", whatYouCanBuild: "", learningOutcomes: "", boxContents: "", specifications: [], faqs: [], resources: [], images: [], relatedIds: [],
 };
 
@@ -27,7 +27,7 @@ function fromProduct(p) {
     title: p.title, slug: p.slug, sku: p.sku, categoryId: p.categoryId, tagline: p.tagline, description: p.description,
     price: paiseToRupeesInput(p.pricePaise), compareAt: p.compareAtPaise ? paiseToRupeesInput(p.compareAtPaise) : "",
     gstRatePercent: String(p.gstRateBp / 100), hsnCode: p.hsnCode, stock: String(p.stock), lowStockThreshold: String(p.lowStockThreshold),
-    status: p.status, sortOrder: String(p.sortOrder), seoTitle: p.seo?.title ?? "", seoDescription: p.seo?.description ?? "",
+    status: p.status, sortOrder: String(p.sortOrder), isFeatured: Boolean(p.isFeatured), isBestSeller: Boolean(p.isBestSeller), seoTitle: p.seo?.title ?? "", seoDescription: p.seo?.description ?? "",
     compatibility: p.compatibility, warranty: p.warranty,
     features: p.features.join("\n"), whatYouCanBuild: p.whatYouCanBuild.join("\n"), learningOutcomes: p.learningOutcomes.join("\n"), boxContents: p.boxContents.join("\n"),
     specifications: p.specifications.map((s) => ({ ...s })), faqs: p.faqs.map((f) => ({ ...f })), resources: p.resources.map((r) => ({ ...r })),
@@ -97,7 +97,7 @@ function Form({ initial, id, editing, cats, others, router, toast }) {
       compatibility: f.compatibility.trim(), warranty: f.warranty.trim(),
       images: f.images.filter((i) => i.key.trim()).map((i, idx) => ({ key: i.key.trim(), alt: i.alt.trim(), sortOrder: idx })),
       pricePaise: price, compareAtPaise: compareAt, gstRateBp: Math.round(Number(f.gstRatePercent) * 100), hsnCode: f.hsnCode.trim(),
-      lowStockThreshold: Number(f.lowStockThreshold) || 0, status: f.status, sortOrder: Number(f.sortOrder) || 0,
+      lowStockThreshold: Number(f.lowStockThreshold) || 0, status: f.status, sortOrder: Number(f.sortOrder) || 0, isFeatured: f.isFeatured, isBestSeller: f.isBestSeller,
       seo: { title: f.seoTitle.trim(), description: f.seoDescription.trim() }, relatedIds: f.relatedIds,
     };
     if (f.slug.trim()) body.slug = f.slug.trim();
@@ -224,6 +224,19 @@ function Form({ initial, id, editing, cats, others, router, toast }) {
               {editing ? <p className="text-sm">Current stock: <strong className="tabular-nums">{f.stock}</strong>. <a href="/admin/inventory" className="font-semibold text-brand underline underline-offset-4">Adjust in Inventory</a> so every change is recorded.</p> : <Field label="Opening stock" inputMode="numeric" value={f.stock} onChange={set("stock")} error={err("stock")} />}
               <Field label="Low-stock alert at" inputMode="numeric" value={f.lowStockThreshold} onChange={set("lowStockThreshold")} error={err("lowStockThreshold")} />
               <Field label="Display order" inputMode="numeric" value={f.sortOrder} onChange={set("sortOrder")} hint="Lower numbers appear first." />
+            </div>
+          </Panel>
+          <Panel title="Homepage">
+            <div className="space-y-1">
+              <p className="mb-2 text-xs text-muted">Choose where this product is promoted on the homepage. Only published products appear.</p>
+              <label className="flex min-h-9 cursor-pointer items-center gap-3 text-sm">
+                <input type="checkbox" className="size-4 accent-brand" checked={f.isFeatured} onChange={(e) => setF((s) => ({ ...s, isFeatured: e.target.checked }))} />
+                Featured product (the large spotlight; the first featured product is used)
+              </label>
+              <label className="flex min-h-9 cursor-pointer items-center gap-3 text-sm">
+                <input type="checkbox" className="size-4 accent-brand" checked={f.isBestSeller} onChange={(e) => setF((s) => ({ ...s, isBestSeller: e.target.checked }))} />
+                Best seller (up to 4 are shown)
+              </label>
             </div>
           </Panel>
           <Panel title="Search engines">

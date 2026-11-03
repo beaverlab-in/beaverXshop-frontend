@@ -20,6 +20,7 @@ function make(children, { fill = false } = {}) {
   };
 }
 
+export const CodeIcon = make(<path d="M8 8l-5 4 5 4M16 8l5 4-5 4M14 5l-4 14" />);
 export const ArrowRightIcon = make(<path d="M5 12h14M13 6l6 6-6 6" />);
 export const ArrowLeftIcon = make(<path d="M19 12H5M11 6l-6 6 6 6" />);
 export const CartIcon = make(

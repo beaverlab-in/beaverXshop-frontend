@@ -33,6 +33,8 @@ export const placeholderCategories = [
   },
 ];
 
+const daysAgo = (n) => new Date(Date.now() - n * 86_400_000).toISOString();
+
 const shared = {
   isPlaceholder: true,
   lowStockThreshold: 5,
@@ -47,6 +49,7 @@ export const placeholderProducts = [
     ...shared,
     id: "p-circuit-starter",
     slug: "circuit-starter-kit",
+    isBestSeller: true,
     sku: "SAMPLE-KIT-001",
     categorySlug: "electronics-learning-kits",
     title: "Circuit Starter Kit",
@@ -88,6 +91,7 @@ export const placeholderProducts = [
     ...shared,
     id: "p-sensor-explorer",
     slug: "sensor-explorer-pack",
+    isBestSeller: true,
     sku: "SAMPLE-KIT-002",
     categorySlug: "electronics-learning-kits",
     title: "Sensor Explorer Pack",
@@ -116,6 +120,7 @@ export const placeholderProducts = [
     ...shared,
     id: "p-iot-board",
     slug: "iot-dev-board",
+    isBestSeller: true,
     sku: "SAMPLE-IOT-001",
     categorySlug: "iot-development-boards",
     title: "IoT Development Board",
@@ -172,6 +177,7 @@ export const placeholderProducts = [
     ...shared,
     id: "p-walker-robot",
     slug: "walker-robot-kit",
+    isFeatured: true,
     sku: "SAMPLE-ROB-001",
     categorySlug: "robotics",
     title: "Walker Robot Kit",
@@ -200,6 +206,7 @@ export const placeholderProducts = [
     ...shared,
     id: "p-accessory-pack",
     slug: "prototyping-accessory-pack",
+    createdAt: daysAgo(6), // sample: lets the demo show the "Recently added" row
     sku: "SAMPLE-ACC-001",
     categorySlug: "accessories",
     title: "Prototyping Accessory Pack",

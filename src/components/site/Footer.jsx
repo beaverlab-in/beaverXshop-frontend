@@ -54,7 +54,7 @@ export default async function Footer() {
         </div>
 
         <FooterList title="Explore">
-          {NAV_LINKS.filter((l) => l.href !== "/").map((l) => (
+          {NAV_LINKS.map((l) => (
             <li key={l.href}>
               <Link href={l.href} className={linkCls}>
                 {l.label}

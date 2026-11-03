@@ -21,3 +21,9 @@ export function productImages(product) {
 export function primaryImage(product) {
   return product.images?.[0] ?? { ...PLACEHOLDER_IMAGE, alt: product.title ? `${product.title}: image coming soon` : PLACEHOLDER_IMAGE.alt };
 }
+
+/** Case-insensitive match of every word against name, short description, description, category and features. */
+export function matchesWords(product, words) {
+  const haystack = [product.title, product.tagline, product.description, product.category?.name, ...(product.features ?? [])].join(" ").toLowerCase();
+  return words.every((w) => haystack.includes(w));
+}
