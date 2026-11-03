@@ -11,6 +11,7 @@ import { getProduct, getProducts, getRelatedProducts } from "@/lib/data/catalog"
 import { getPublicSettings } from "@/lib/data/settings";
 import { breadcrumbJsonLd, buildMetadata, productJsonLd } from "@/lib/seo";
 import { IS_DEMO } from "@/lib/env";
+import { productImages } from "@/lib/product";
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -93,7 +94,7 @@ export default async function ProductPage({ params }) {
       <Breadcrumbs items={crumbs} />
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14">
-        <Gallery images={product.images} title={product.title} />
+        <Gallery images={productImages(product)} title={product.title} />
 
         <div className="lg:sticky lg:top-28 lg:self-start">
           {product.category && <p className="eyebrow">{product.category.name}</p>}

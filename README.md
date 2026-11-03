@@ -13,7 +13,7 @@ cp .env.example .env.local      # then adjust
 npm run dev                     # http://localhost:3000
 ```
 
-Other scripts: `npm run build` · `npm start` · `npm run lint` · `npm test`.
+Other scripts: `npm run build` · `npm start` · `npm run lint` · `npm test` (unit) · `npm run e2e:demo` / `npm run e2e:api` (real-Chrome browser tests, see `docs/TESTING.md`).
 
 ## Data source: sample mode vs API mode
 
@@ -57,5 +57,5 @@ Set `NEXT_PUBLIC_BRAND_NAME` and optionally `NEXT_PUBLIC_LOGO_URL` to replace th
 
 - Unknown product/legal URLs render the 404 UI with `noindex` but the HTTP status is 200: with Partial Prefetching the app shell streams before the slug is checked. (`dynamicParams = false` is unavailable with Cache Components and would also hide products created after the build.)
 - `og-default.svg` is the requested SVG sharing image, but some social platforms only render raster Open Graph images; a PNG variant may be needed later.
-- Admin panel UI is Phase 5. Real OTP, payment verification, invoices and shipping need the backend (Phases 3 to 6).
-- `npm audit` currently reports moderate advisories in dev-only ESLint tooling; none are in runtime dependencies. Re-check before release.
+- Image upload to cloud storage is not built (admin enters image links/keys). Real WhatsApp OTP/messages, Ekart and Razorpay need your accounts; see the backend `docs/INTEGRATIONS.md` and `docs/LAUNCH-CHECKLIST.md`.
+- `npm audit`: moderate advisories only in dev-time ESLint tooling; runtime dependencies have 0 known vulnerabilities. Re-check before each release.

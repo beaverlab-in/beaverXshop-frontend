@@ -181,7 +181,7 @@ export default function OrderDetail({ id }) {
             {order.payment ? (
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between gap-3"><dt className="text-muted">Provider</dt><dd>{order.payment.provider}</dd></div>
-                <div className="flex justify-between gap-3"><dt className="text-muted">Status</dt><dd>{order.payment.status}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-muted">Status</dt><dd>{order.payment.status.replaceAll("_", " ")}</dd></div>
                 {order.payment.method && <div className="flex justify-between gap-3"><dt className="text-muted">Method</dt><dd>{order.payment.method}</dd></div>}
                 {order.payment.providerPaymentId && <div className="flex justify-between gap-3"><dt className="text-muted">Payment id</dt><dd className="break-all font-mono text-xs">{order.payment.providerPaymentId}</dd></div>}
                 {order.payment.failureReason && <div className="flex justify-between gap-3"><dt className="text-muted">Note</dt><dd>{order.payment.failureReason}</dd></div>}

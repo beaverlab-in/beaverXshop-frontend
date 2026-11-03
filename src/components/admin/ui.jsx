@@ -21,7 +21,7 @@ export function PageHeader({ title, description, actions }) {
 
 export function Panel({ title, actions, children, className = "", padded = true }) {
   return (
-    <section className={`rounded-card border border-line bg-surface shadow-card ${className}`}>
+    <section className={`min-w-0 rounded-card border border-line bg-surface shadow-card ${className}`}>
       {(title || actions) && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
           {title && <h2 className="text-lg font-bold">{title}</h2>}

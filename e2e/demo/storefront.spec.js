@@ -153,7 +153,7 @@ test("full demo checkout: login with OTP, address, COD order, then tracking page
   await page.getByRole("link", { name: "Track your order" }).click();
   await expect(page.getByRole("heading", { name: orderNumber })).toBeVisible();
   await expect(page.getByText("Demo order")).toBeVisible();
-  await expect(page.getByText("MG Road")).toBeVisible();
+  await expect(page.getByText("MG Road").first()).toBeVisible();
   await page.goto("/account/orders");
   await expect(page.getByRole("heading", { name: orderNumber })).toBeVisible();
 });

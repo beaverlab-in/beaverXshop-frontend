@@ -117,9 +117,10 @@ function ProfileMenu() {
   const initial = (user?.name || user?.mobile || "?").trim().slice(0, 1).toUpperCase();
   return (
     <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-tint/60" aria-expanded={open} aria-label="Account menu">
-        <span className="grid size-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">{initial}</span>
+      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-tint/60" aria-expanded={open} aria-haspopup="menu">
+        <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">{initial}</span>
         <span className="hidden text-sm font-semibold sm:block">{user?.name || formatMobile(user?.mobile)}</span>
+        <span className="sr-only"> account menu</span>
       </button>
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-64 rounded-card border border-line bg-surface p-2 shadow-lift">
