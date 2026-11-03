@@ -1,7 +1,7 @@
 // Pure helpers shared by server and client components.
 
 /** Shown for products that have no photos yet (never a random stock image). Replace by uploading real images in the admin. */
-export const PLACEHOLDER_IMAGE = { src: "/placeholders/detail.svg", alt: "Product image coming soon" };
+export const PLACEHOLDER_IMAGE = { src: "/images/placeholders/no-photo.svg", alt: "Product photo coming soon" };
 
 export function stockState(product) {
   if (!product || product.stock <= 0) return "out";

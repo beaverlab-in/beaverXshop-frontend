@@ -13,10 +13,10 @@ function Notice({ title, children, action }) {
   return (
     <div className="mx-auto grid min-h-dvh max-w-md place-items-center px-4">
       <div className="rounded-card border border-line bg-surface p-8 text-center shadow-card">
-        <span className="mx-auto grid size-14 place-items-center rounded-full bg-tint text-brand">
+        <span className="mx-auto grid size-14 place-items-center rounded-full bg-subtle text-brand">
           <LockIcon className="size-7" />
         </span>
-        <h1 className="mt-4 text-2xl font-extrabold">{title}</h1>
+        <h1 className="mt-4 text-2xl font-bold">{title}</h1>
         <div className="mt-2 text-muted">{children}</div>
         {action}
       </div>
@@ -41,7 +41,7 @@ export default function AdminGate({ children }) {
     return (
       <Notice title="The admin panel needs the live API">
         <p>
-          The storefront is running on built-in sample data. Set <code className="rounded bg-tint px-1">NEXT_PUBLIC_DATA_SOURCE=api</code> and point <code className="rounded bg-tint px-1">NEXT_PUBLIC_API_URL</code> at the backend to use the admin panel.
+          The storefront is running on built-in sample data. Set <code className="rounded bg-subtle px-1">NEXT_PUBLIC_DATA_SOURCE=api</code> and point <code className="rounded bg-subtle px-1">NEXT_PUBLIC_API_URL</code> at the backend to use the admin panel.
         </p>
       </Notice>
     );

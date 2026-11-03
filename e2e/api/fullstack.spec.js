@@ -61,9 +61,9 @@ test.afterAll(async () => {
 test("an ordinary shopper cannot use the admin panel, and the storefront reads live API data", async () => {
   const p = pages.shopper;
   await p.goto("/");
-  await expect(p.getByRole("heading", { level: 1, name: "Turn Curiosity Into Creation." })).toBeVisible();
+  await expect(p.getByRole("heading", { level: 1 })).toBeVisible(); // the featured product
   await expect(p.getByRole("heading", { level: 2, name: "Best Sellers" }).or(p.getByRole("heading", { level: 2, name: "Start Here" }))).toBeVisible();
-  await expect(p.getByText("Sample product")).toHaveCount(0); // live data, not the demo set
+  await expect(p.getByText("Demo image")).toHaveCount(0); // live data, not the demo set
   await p.goto("/products");
   await expect(p.getByRole("heading", { name: "Walker Robot Kit" })).toBeVisible();
   await loginAs(p, SHOPPER, { name: "Ravi Kumar" });
@@ -127,7 +127,7 @@ test("admin creates a category and a product through the forms; the storefront s
   await s.goto("/products/e2e-widget");
   await expect(s.getByRole("heading", { name: "E2E Widget", level: 1 })).toBeVisible();
   await expect(s.getByText("₹499").first()).toBeVisible();
-  await expect(s.getByText("Sample product")).toHaveCount(0); // real products carry no sample badge
+  await expect(s.getByText("Demo image")).toHaveCount(0); // real products carry no sample badge
   // the admin flag reaches the public API (the homepage spotlight reads it)
   const pub = await (await fetch(`http://localhost:${API_PORT}/api/v1/catalog/products/e2e-widget`)).json();
   expect(pub.data).toMatchObject({ isFeatured: true, isBestSeller: false });
@@ -285,6 +285,27 @@ test("admin adds a staff member; they see only what their role allows", async ()
   await expect(s.getByRole("button", { name: "Adjust" }).first()).toBeVisible();
 });
 
+test("admin switches the announcement strip on from Settings > Storefront (and it reaches the public API)", async () => {
+  const p = pages.admin;
+  await p.goto("/admin/settings");
+  await p.getByRole("tab", { name: "Storefront" }).click();
+  await p.getByLabel("Show the announcement strip").check();
+  await p.getByLabel("Message").fill("Free shipping on orders above ₹999");
+  await p.getByLabel("Link").fill("javascript:alert(1)");
+  await p.getByRole("button", { name: "Save" }).click();
+  await expect(p.getByText("Use a site path like /products or an https:// link.")).toBeVisible(); // unsafe links are refused
+  await p.getByLabel("Link").fill("/products");
+  await p.getByRole("button", { name: "Save" }).click();
+  await expect(p.getByText("Free shipping on orders above ₹999").or(p.getByRole("status").filter({ hasText: /saved/i })).first()).toBeVisible();
+  const pub = await (await fetch(`http://localhost:${API_PORT}/api/v1/content/settings/public`)).json();
+  expect(pub.data.storefront.announcement).toEqual({ text: "Free shipping on orders above ₹999", href: "/products" });
+  await p.screenshot({ path: `${SHOTS}/admin-settings-storefront-desktop.png`, fullPage: true });
+  // leave the store as we found it
+  await p.getByLabel("Show the announcement strip").uncheck();
+  await p.getByRole("button", { name: "Save" }).click();
+  await expect.poll(async () => (await (await fetch(`http://localhost:${API_PORT}/api/v1/content/settings/public`)).json()).data.storefront.announcement).toBeNull();
+});
+
 test("inventory adjustments are recorded and refused below zero", async () => {
   const p = pages.staff2;
   await p.goto("/admin/inventory");
@@ -327,6 +348,7 @@ test.describe("admin layout and accessibility", () => {
       await p.goto(path);
       await p.waitForLoadState("networkidle");
       await p.waitForTimeout(500);
+      await p.screenshot({ path: `${SHOTS}/admin${path.replaceAll("/", "-")}-desktop.png`, fullPage: true });
       const results = await new AxeBuilder({ page: p }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
       const bad = results.violations.filter((v) => ["serious", "critical"].includes(v.impact));
       expect(bad.map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);

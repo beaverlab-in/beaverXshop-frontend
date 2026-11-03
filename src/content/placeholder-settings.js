@@ -18,5 +18,6 @@ export const placeholderSettings = {
     shipping: { flatPaise: 6000, freeAbovePaise: 99900 }, // admin-manageable SAMPLE values
     cod: { enabled: true, feePaise: 0, maxOrderPaise: 0 }, // admin-manageable; 0 = no limit
   },
+  storefront: { announcement: null }, // admin-managed in API mode (Settings > Storefront); off in the demo
   coupons: { demoCode: "DEMO10" }, // demo only
 };

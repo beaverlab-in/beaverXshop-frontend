@@ -1,4 +1,4 @@
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
@@ -11,8 +11,7 @@ import { getPublicSettings } from "@/lib/data/settings";
 import { BRAND_NAME, SITE_URL } from "@/lib/env";
 import { organizationJsonLd } from "@/lib/seo";
 
-const heading = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-heading", display: "swap" });
-const body = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -23,12 +22,12 @@ export const metadata = {
   formatDetection: { telephone: false },
 };
 
-export const viewport = { themeColor: "#FFF8F0" };
+export const viewport = { themeColor: "#FFFFFF" };
 
 export default async function RootLayout({ children }) {
   const { company } = await getPublicSettings();
   return (
-    <html lang="en-IN" data-scroll-behavior="smooth" className={`${heading.variable} ${body.variable}`}>
+    <html lang="en-IN" data-scroll-behavior="smooth" className={inter.variable}>
       <body className="flex min-h-dvh flex-col">
         <JsonLd data={organizationJsonLd(company)} />
         <ToastProvider>

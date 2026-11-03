@@ -19,6 +19,7 @@ const TABS = [
   { value: "commerce", label: "Tax, shipping & COD" },
   { value: "invoice", label: "Invoices" },
   { value: "legal", label: "Legal pages" },
+  { value: "storefront", label: "Storefront" },
   { value: "seo", label: "SEO" },
   { value: "integrations", label: "Integrations" },
 ];
@@ -106,11 +107,11 @@ function CommerceTab({ s, canWrite, reload }) {
       <Panel title="How prices and GST work">
         <fieldset disabled={!canWrite} className="space-y-3">
           <legend className="sr-only">Price mode</legend>
-          <label className={`${radio} ${f.include ? "border-brand bg-tint/40" : "border-line"}`}>
+          <label className={`${radio} ${f.include ? "border-brand bg-subtle" : "border-line"}`}>
             <input type="radio" name="mode" checked={f.include} onChange={() => setF({ ...f, include: true })} className="mt-1 accent-brand" />
             <span><strong>Prices include GST</strong><br /><span className="text-sm text-muted">Customers pay exactly the listed price; GST is shown as contained in it.</span></span>
           </label>
-          <label className={`${radio} ${!f.include ? "border-brand bg-tint/40" : "border-line"}`}>
+          <label className={`${radio} ${!f.include ? "border-brand bg-subtle" : "border-line"}`}>
             <input type="radio" name="mode" checked={!f.include} onChange={() => setF({ ...f, include: false })} className="mt-1 accent-brand" />
             <span><strong>Prices exclude GST</strong><br /><span className="text-sm text-muted">GST is added on top at checkout.</span></span>
           </label>
@@ -197,6 +198,28 @@ function LegalTab({ s, canWrite, reload }) {
   );
 }
 
+function StorefrontTab({ s, canWrite, reload }) {
+  const a = s.storefront?.announcement ?? { enabled: false, text: "", href: "" };
+  const [f, setF] = useState({ enabled: Boolean(a.enabled), text: a.text ?? "", href: a.href ?? "" });
+  const { save, busy, errors } = useSave(reload);
+  return (
+    <form onSubmit={(ev) => { ev.preventDefault(); save({ storefront: { announcement: f } }); }} noValidate className="space-y-6">
+      <Panel title="Announcement strip">
+        <fieldset disabled={!canWrite} className="space-y-4">
+          <p className="text-sm text-muted">A thin message above the header on every page, for example a delivery notice or an offer. Leave it off when there is nothing to announce.</p>
+          <label className="flex min-h-9 cursor-pointer items-center gap-3 text-sm font-medium">
+            <input type="checkbox" className="size-4 accent-brand" checked={f.enabled} onChange={(e) => setF({ ...f, enabled: e.target.checked })} />
+            Show the announcement strip
+          </label>
+          <Field label="Message" value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} error={errors["storefront.announcement.text"]} hint="Up to 140 characters." />
+          <Field label="Link" optional value={f.href} onChange={(e) => setF({ ...f, href: e.target.value })} error={errors["storefront.announcement.href"]} hint="A page on this site such as /products, or an https:// link." />
+        </fieldset>
+      </Panel>
+      {canWrite && <Button type="submit" loading={busy}>Save</Button>}
+    </form>
+  );
+}
+
 function SeoTab({ s, canWrite, reload }) {
   const [f, setF] = useState({ defaultTitle: s.seo.defaultTitle, defaultDescription: s.seo.defaultDescription });
   const { save, busy, errors } = useSave(reload);
@@ -255,6 +278,7 @@ export default function Settings() {
           {tab === "commerce" && <CommerceTab key={JSON.stringify(data.commerce)} s={data} canWrite={canWrite} reload={reload} />}
           {tab === "invoice" && <InvoiceTab key={JSON.stringify(data.invoice)} s={data} canWrite={canWrite} reload={reload} />}
           {tab === "legal" && <LegalTab s={data} canWrite={canWrite} reload={reload} />}
+          {tab === "storefront" && <StorefrontTab key={JSON.stringify(data.storefront)} s={data} canWrite={canWrite} reload={reload} />}
           {tab === "seo" && <SeoTab key={JSON.stringify(data.seo)} s={data} canWrite={canWrite} reload={reload} />}
           {tab === "integrations" && <IntegrationsTab />}
         </>

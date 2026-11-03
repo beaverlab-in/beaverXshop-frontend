@@ -19,7 +19,7 @@ export default async function ProductsPage() {
     <Container className="pt-8 pb-16 md:pt-10">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
       <header className="mt-6 mb-6 max-w-2xl">
-        <h1 className="text-3xl font-extrabold text-brand md:text-4xl">Explore Our Products</h1>
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Explore Our Products</h1>
         <p className="mt-2 text-lg text-muted">Tools and kits designed to make electronics, robotics and IoT learning practical and fun.</p>
       </header>
       {products.length === 0 ? (

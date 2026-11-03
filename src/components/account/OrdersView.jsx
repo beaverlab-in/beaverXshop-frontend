@@ -27,7 +27,7 @@ export default function OrdersView() {
   const orders = data ?? [];
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-brand">My orders</h1>
+      <h1 className="text-3xl font-bold">My orders</h1>
       {orders.length === 0 ? (
         <div className="mt-8">
           <EmptyState
@@ -56,7 +56,7 @@ export default function OrdersView() {
                 <div className="mt-4 flex items-center justify-between gap-4 border-t border-line pt-4">
                   <ul className="flex -space-x-2">
                     {o.items.slice(0, 4).map((item) => (
-                      <li key={item.slug} className="relative size-12 overflow-hidden rounded-md border-2 border-surface bg-tint">
+                      <li key={item.slug} className="relative size-12 overflow-hidden rounded-md border-2 border-surface bg-subtle">
                         {item.image && <ProductImage image={{ ...item.image, alt: item.title }} sizes="48px" />}
                       </li>
                     ))}

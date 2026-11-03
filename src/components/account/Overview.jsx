@@ -17,13 +17,13 @@ export default function Overview() {
   return (
     <div>
       <p className="eyebrow">My account</p>
-      <h1 className="mt-1 text-3xl font-extrabold text-brand">{user?.name ? `Hello, ${user.name.split(" ")[0]}` : "Welcome back"}</h1>
+      <h1 className="mt-1 text-3xl font-bold">{user?.name ? `Hello, ${user.name.split(" ")[0]}` : "Welcome back"}</h1>
       <p className="mt-2 text-muted">Logged in as {formatMobile(user?.mobile)}</p>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {tiles.map(({ href, title, text, icon: Icon }) => (
           <li key={href}>
             <Link href={href} className="card-hover group block h-full rounded-card border border-line bg-surface p-6 shadow-card">
-              <span className="grid size-11 place-items-center rounded-xl bg-tint text-brand">
+              <span className="grid size-11 place-items-center rounded-xl bg-subtle text-brand">
                 <Icon className="size-5" />
               </span>
               <h2 className="mt-4 text-lg font-bold">{title}</h2>

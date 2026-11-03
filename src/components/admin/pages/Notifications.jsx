@@ -169,7 +169,7 @@ export default function Notifications() {
       <PageHeader title="Notifications" description="WhatsApp messages for order updates: templates, history, failures and retries." />
       {!s ? <Skeleton className="mb-6 h-24" /> : (
         <>
-          <p className={`mb-6 rounded-md border p-4 text-sm ${mode.tone === "success" ? "border-success/30 bg-success/10" : mode.tone === "danger" ? "border-danger/30 bg-danger/10" : "border-accent/60 bg-accent/15"}`} role="note">
+          <p className={`mb-6 rounded-md border p-4 text-sm ${mode.tone === "success" ? "border-success/30 bg-success/10" : mode.tone === "danger" ? "border-danger/30 bg-danger/10" : "border-warning/40 bg-warning/10"}`} role="note">
             <strong>{mode.title}.</strong> {mode.text} Login codes are sent separately through the OTP provider and are never stored in this history.
           </p>
           <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

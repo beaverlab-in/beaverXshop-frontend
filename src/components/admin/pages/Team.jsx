@@ -79,7 +79,7 @@ export default function Team() {
           <Field label="Name" optional value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <Field as="select" label="Role" value={form.roleKey} onChange={(e) => setForm({ ...form, roleKey: e.target.value })}>{roleOptions.map((r) => <option key={r.key} value={r.key}>{r.label}</option>)}</Field>
           {formError && <p role="alert" className="text-sm font-medium text-danger">{formError}</p>}
-          {reauth && <p className="rounded-md bg-accent/15 p-3 text-sm">For your security this needs a fresh sign-in. <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={async () => { await signOut(); router.replace("/login?next=/admin/team"); }}>Sign in again</button></p>}
+          {reauth && <p className="rounded-md bg-warning/10 p-3 text-sm">For your security this needs a fresh sign-in. <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={async () => { await signOut(); router.replace("/login?next=/admin/team"); }}>Sign in again</button></p>}
         </div>
       </Modal>
 
@@ -92,7 +92,7 @@ export default function Team() {
         <Field as="select" label="Role" value={form.roleKey} onChange={(e) => setForm({ ...form, roleKey: e.target.value })}>{roleOptions.map((r) => <option key={r.key} value={r.key}>{r.label}</option>)}</Field>
         <p className="mt-3 text-sm text-muted">Removing access only removes the staff role. Their shopper account, orders and addresses stay.</p>
         {formError && <p role="alert" className="mt-3 text-sm font-medium text-danger">{formError}</p>}
-        {reauth && <p className="mt-3 rounded-md bg-accent/15 p-3 text-sm">For your security this needs a fresh sign-in. <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={async () => { await signOut(); router.replace("/login?next=/admin/team"); }}>Sign in again</button></p>}
+        {reauth && <p className="mt-3 rounded-md bg-warning/10 p-3 text-sm">For your security this needs a fresh sign-in. <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={async () => { await signOut(); router.replace("/login?next=/admin/team"); }}>Sign in again</button></p>}
       </Modal>
     </>
   );

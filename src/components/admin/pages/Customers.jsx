@@ -90,8 +90,8 @@ export function CustomerDetail({ id }) {
           {user.permissions.includes("customers:block") && !c.isStaff && <Button variant={blocked ? "secondary" : "danger"} size="sm" onClick={() => setConfirm(true)}>{blocked ? "Unblock" : "Block"}</Button>}
         </>} />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <Panel><p className="text-sm text-muted">Orders</p><p className="text-3xl font-extrabold tabular-nums">{c.orders}</p></Panel>
-        <Panel><p className="text-sm text-muted">Total spent</p><p className="text-3xl font-extrabold tabular-nums">{formatINR(c.totalSpentPaise)}</p></Panel>
+        <Panel><p className="text-sm text-muted">Orders</p><p className="text-3xl font-bold tabular-nums">{c.orders}</p></Panel>
+        <Panel><p className="text-sm text-muted">Total spent</p><p className="text-3xl font-bold tabular-nums">{formatINR(c.totalSpentPaise)}</p></Panel>
         <Panel><p className="text-sm text-muted">Last login</p><p className="text-lg font-bold">{c.lastLoginAt ? formatDateTime(c.lastLoginAt) : "Never"}</p></Panel>
       </div>
       <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">

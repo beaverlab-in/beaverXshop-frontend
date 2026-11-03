@@ -8,7 +8,7 @@ export default function CartPage() {
   return (
     <Container className="pt-8 pb-8">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Cart" }]} />
-      <h1 className="mt-6 mb-8 text-4xl font-extrabold text-brand">Your cart</h1>
+      <h1 className="mt-6 mb-8 text-3xl font-bold tracking-tight">Your cart</h1>
       <CartView />
     </Container>
   );

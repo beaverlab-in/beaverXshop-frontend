@@ -11,7 +11,7 @@ export default function CheckoutPage() {
   return (
     <Container className="pt-8 pb-8">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Cart", href: "/cart" }, { label: "Checkout" }]} />
-      <h1 className="mt-6 mb-8 text-4xl font-extrabold text-brand">Checkout</h1>
+      <h1 className="mt-6 mb-8 text-3xl font-bold tracking-tight">Checkout</h1>
       <Suspense fallback={<Skeleton className="h-96" />}>
         <AuthGate>
           <CheckoutFlow />

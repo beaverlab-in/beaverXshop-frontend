@@ -47,7 +47,7 @@ function PairList({ title, hint, rows, onChange, a, b, aLabel, bLabel }) {
           <div key={i} className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[1fr_1.4fr_auto]">
             <Field label={aLabel} value={r[a]} onChange={(e) => set(i, a, e.target.value)} />
             <Field label={bLabel} value={r[b]} onChange={(e) => set(i, b, e.target.value)} />
-            <button type="button" onClick={() => onChange(rows.filter((_, idx) => idx !== i))} className="mt-6 grid size-10 place-items-center self-start rounded-full text-muted hover:bg-danger/10 hover:text-danger" aria-label={`Remove ${aLabel.toLowerCase()} ${i + 1}`}>
+            <button type="button" onClick={() => onChange(rows.filter((_, idx) => idx !== i))} className="mt-6 grid size-10 place-items-center self-start rounded-full text-muted hover:bg-danger/10 hover:text-danger-ink" aria-label={`Remove ${aLabel.toLowerCase()} ${i + 1}`}>
               <TrashIcon className="size-4" />
             </button>
           </div>
@@ -152,8 +152,8 @@ function Form({ initial, id, editing, cats, others, router, toast }) {
           </>
         }
       />
-      {formError && <p role="alert" className="mb-4 rounded-md bg-danger/10 p-3 text-sm font-medium text-danger">{formError}</p>}
-      {cats.length === 0 && <p className="mb-4 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm">You need at least one category first. <a className="font-semibold text-brand underline underline-offset-4" href="/admin/categories">Create a category</a></p>}
+      {formError && <p role="alert" className="mb-4 rounded-md bg-danger/10 p-3 text-sm font-medium text-danger-ink">{formError}</p>}
+      {cats.length === 0 && <p className="mb-4 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">You need at least one category first. <a className="font-semibold text-brand underline underline-offset-4" href="/admin/categories">Create a category</a></p>}
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <div className="space-y-6">
@@ -200,7 +200,7 @@ function Form({ initial, id, editing, cats, others, router, toast }) {
                 <div key={i} className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[1.2fr_1fr_auto]">
                   <Field label={`Image ${i + 1} key or link`} value={img.key} onChange={(e) => setF((s) => ({ ...s, images: s.images.map((x, idx) => (idx === i ? { ...x, key: e.target.value } : x)) }))} error={err(`images.${i}.key`)} />
                   <Field label="Alt text" value={img.alt} onChange={(e) => setF((s) => ({ ...s, images: s.images.map((x, idx) => (idx === i ? { ...x, alt: e.target.value } : x)) }))} hint="Describe the image for screen readers." />
-                  <button type="button" onClick={() => setF((s) => ({ ...s, images: s.images.filter((_, idx) => idx !== i) }))} className="mt-6 grid size-10 place-items-center self-start rounded-full text-muted hover:bg-danger/10 hover:text-danger" aria-label={`Remove image ${i + 1}`}><TrashIcon className="size-4" /></button>
+                  <button type="button" onClick={() => setF((s) => ({ ...s, images: s.images.filter((_, idx) => idx !== i) }))} className="mt-6 grid size-10 place-items-center self-start rounded-full text-muted hover:bg-danger/10 hover:text-danger-ink" aria-label={`Remove image ${i + 1}`}><TrashIcon className="size-4" /></button>
                 </div>
               ))}
             </div>

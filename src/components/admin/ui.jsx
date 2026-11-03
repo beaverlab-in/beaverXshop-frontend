@@ -11,7 +11,7 @@ export function PageHeader({ title, description, actions }) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-ink md:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-ink md:text-3xl">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-muted">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -34,11 +34,11 @@ export function Panel({ title, actions, children, className = "", padded = true 
 }
 
 export function StatCard({ label, value, hint, tone = "default", href }) {
-  const toneCls = tone === "warning" ? "text-[#8a5a00]" : tone === "danger" ? "text-danger" : "text-ink";
+  const toneCls = tone === "warning" ? "text-warning-ink" : tone === "danger" ? "text-danger" : "text-ink";
   const body = (
     <>
       <p className="text-sm font-medium text-muted">{label}</p>
-      <p className={`mt-2 text-3xl font-extrabold tabular-nums ${toneCls}`}>{value}</p>
+      <p className={`mt-2 text-3xl font-bold tabular-nums ${toneCls}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </>
   );
@@ -87,7 +87,7 @@ export function DataTable({ columns, rows, loading = false, empty = "Nothing to 
           {rows?.map((row) => (
             <tr
               key={rowKey(row)}
-              className={`border-b border-line/60 last:border-0 ${onRowClick ? "cursor-pointer hover:bg-tint/30" : ""}`}
+              className={`border-b border-line/60 last:border-0 ${onRowClick ? "cursor-pointer hover:bg-subtle" : ""}`}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
             >
               {columns.map((c) => (
@@ -136,7 +136,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }) 
       ref={ref}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className={`m-auto w-[calc(100%-2rem)] rounded-card border border-line bg-surface p-0 text-ink shadow-lift backdrop:bg-night/50 ${wide ? "max-w-3xl" : "max-w-lg"}`}
+      className={`m-auto w-[calc(100%-2rem)] rounded-card border border-line bg-surface p-0 text-ink shadow-lift backdrop:bg-dark/50 ${wide ? "max-w-3xl" : "max-w-lg"}`}
       aria-labelledby="modal-title"
     >
       {open && (
@@ -145,7 +145,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }) 
             <h2 id="modal-title" className="text-lg font-bold">
               {title}
             </h2>
-            <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-full hover:bg-tint/60" aria-label="Close">
+            <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-full hover:bg-subtle" aria-label="Close">
               <CloseIcon className="size-5" />
             </button>
           </div>
@@ -202,7 +202,7 @@ export function Tabs({ tabs, value, onChange, label = "Sections" }) {
 export function ErrorBanner({ error, onRetry }) {
   if (!error) return null;
   return (
-    <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
+    <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-danger/30 bg-danger/10 p-4 text-sm text-danger-ink">
       <AlertIcon className="size-5 shrink-0" />
       <span className="flex-1 font-medium">{error.message || "Something went wrong."}</span>
       {onRetry && (

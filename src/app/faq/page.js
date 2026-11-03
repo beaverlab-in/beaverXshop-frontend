@@ -23,7 +23,7 @@ export default function FaqPage() {
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <JsonLd data={faqLd} />
       <Breadcrumbs items={crumbs} />
-      <h1 className="mt-6 text-4xl font-extrabold text-brand md:text-5xl">Frequently asked questions</h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">Frequently asked questions</h1>
       <p className="mt-4 text-lg text-muted">Can&apos;t find what you need? Send us a message from the contact page.</p>
       <div className="mt-10 divide-y divide-line rounded-card border border-line bg-surface">
         {generalFaqs.map((f) => (

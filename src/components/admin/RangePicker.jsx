@@ -14,7 +14,7 @@ const PRESETS = [
 export default function RangePicker({ value, onChange }) {
   const [draft, setDraft] = useState({ from: value.from ?? "", to: value.to ?? "" });
   const [showCustom, setShowCustom] = useState(value.preset === "custom");
-  const btn = (active) => `min-h-9 rounded-full px-3.5 text-sm font-semibold transition-colors ${active ? "bg-brand text-white" : "text-ink/75 hover:bg-tint/60"}`;
+  const btn = (active) => `min-h-9 rounded-full px-3.5 text-sm font-semibold transition-colors ${active ? "bg-brand text-white" : "text-ink/75 hover:bg-subtle"}`;
   return (
     <div className="flex flex-wrap items-end gap-2">
       <div role="group" aria-label="Date range" className="inline-flex flex-wrap gap-1 rounded-full border border-line bg-surface p-1">

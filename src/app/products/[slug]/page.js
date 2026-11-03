@@ -12,6 +12,7 @@ import { getPublicSettings } from "@/lib/data/settings";
 import { breadcrumbJsonLd, buildMetadata, productJsonLd } from "@/lib/seo";
 import { IS_DEMO } from "@/lib/env";
 import { productImages } from "@/lib/product";
+import { formatINR } from "@/lib/money";
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -46,7 +47,7 @@ function BulletList({ items }) {
 function InfoCard({ id, title, children }) {
   return (
     <Card as="section" id={id} aria-labelledby={`${id}-h`} className="scroll-mt-36 p-6 md:p-8">
-      <h2 id={`${id}-h`} className="mb-5 text-2xl font-bold">
+      <h2 id={`${id}-h`} className="mb-5 text-xl font-semibold">
         {title}
       </h2>
       {children}
@@ -93,16 +94,14 @@ export default async function ProductPage({ params }) {
       <Breadcrumbs items={crumbs} />
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14">
-        <Gallery images={productImages(product)} title={product.title} />
+        <Gallery images={productImages(product)} title={product.title} demoImage={IS_DEMO && product.isPlaceholder} />
 
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          {product.category && <p className="eyebrow">{product.category.name}</p>}
-          <h1 className="mt-2 text-4xl leading-tight font-extrabold text-brand md:text-5xl">{product.title}</h1>
+        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+          {product.category && <p className="text-xs font-semibold tracking-wide text-muted uppercase">{product.category.name}</p>}
+          <h1 className="mt-2 text-3xl leading-tight font-bold tracking-tight md:text-4xl">{product.title}</h1>
           <p className="mt-3 text-lg text-muted">{product.tagline}</p>
           {IS_DEMO && product.isPlaceholder && (
-            <p className="mt-3 inline-block rounded-md bg-accent/25 px-3 py-1.5 text-sm font-medium text-[#7a4d05]">
-              Sample product: name, price and details are placeholders.
-            </p>
+            <p className="mt-3 text-sm text-muted">Demo product: the photos are stock images, and the name, price and details are placeholders.</p>
           )}
 
           <div className="mt-6 flex flex-wrap items-center gap-4">
@@ -119,24 +118,38 @@ export default async function ProductPage({ params }) {
             <AddToCart slug={product.slug} title={product.title} pricePaise={product.pricePaise} stock={product.stock} />
           </div>
 
-          <p className="mt-6 flex items-center gap-2 text-sm text-muted">
-            <TruckIcon className="size-5 text-brand" /> Delivery details are shown at checkout.{" "}
-            <Link href="/legal/shipping-and-delivery-policy" className="underline underline-offset-4 hover:text-brand">
-              Shipping policy
-            </Link>
-          </p>
+          <section aria-labelledby="delivery-h" className="mt-8 rounded-card border border-line bg-surface p-4 sm:p-5">
+            <h2 id="delivery-h" className="flex items-center gap-2 text-sm font-semibold">
+              <TruckIcon className="size-5 text-brand" /> Delivery information
+            </h2>
+            <ul className="mt-3 space-y-1.5 text-sm text-muted">
+              {settings.commerce.shipping?.flatPaise > 0 && (
+                <li>
+                  Shipping: {formatINR(settings.commerce.shipping.flatPaise)}
+                  {settings.commerce.shipping.freeAbovePaise > 0 && <>, free on orders above {formatINR(settings.commerce.shipping.freeAbovePaise)}</>}
+                </li>
+              )}
+              {settings.commerce.cod?.enabled && <li>Cash on delivery is available.</li>}
+              <li>The exact charge and delivery estimate for your PIN code are shown at checkout.</li>
+            </ul>
+            <p className="mt-3 text-sm">
+              <Link href="/legal/shipping-and-delivery-policy" className="font-semibold text-brand underline-offset-4 hover:underline">
+                Shipping and delivery policy
+              </Link>
+            </p>
+          </section>
         </div>
       </div>
 
       {sections.length > 0 && (
         <nav
           aria-label="Product sections"
-          className="sticky top-[calc(4.25rem+4px)] z-30 -mx-4 mt-16 overflow-x-auto border-y border-line bg-canvas/95 px-4 backdrop-blur sm:-mx-6 sm:px-6"
+          className="sticky top-16 z-30 -mx-4 mt-16 overflow-x-auto border-y border-line bg-canvas/95 px-4 backdrop-blur sm:-mx-6 sm:px-6"
         >
           <ul className="flex min-w-max gap-1 py-2">
             {sections.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold text-ink/80 hover:bg-tint/60 hover:text-brand">
+                <a href={`#${s.id}`} className="inline-flex min-h-10 items-center rounded-md px-4 text-sm font-medium text-muted hover:bg-subtle hover:text-ink">
                   {s.label}
                 </a>
               </li>
@@ -208,7 +221,7 @@ export default async function ProductPage({ params }) {
 
       {product.faqs?.length > 0 && (
         <section id="faq" aria-labelledby="faq-h" className="mt-12 scroll-mt-36">
-          <h2 id="faq-h" className="mb-5 text-2xl font-bold">
+          <h2 id="faq-h" className="mb-5 text-xl font-semibold">
             Frequently asked questions
           </h2>
           <div className="divide-y divide-line rounded-card border border-line bg-surface">
@@ -227,7 +240,7 @@ export default async function ProductPage({ params }) {
 
       {related.length > 0 && (
         <section aria-labelledby="related-h" className="mt-16">
-          <h2 id="related-h" className="mb-6 text-2xl font-bold">
+          <h2 id="related-h" className="mb-6 text-2xl font-bold tracking-tight">
             You might also like
           </h2>
           <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

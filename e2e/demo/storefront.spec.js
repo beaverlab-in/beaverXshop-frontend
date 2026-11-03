@@ -7,13 +7,16 @@ fs.mkdirSync(SHOTS, { recursive: true });
 
 const WIDTHS = [
   ["mobile", 375, 812],
+  ["mobile-large", 430, 932],
   ["tablet", 768, 1024],
-  ["desktop", 1280, 800],
+  ["laptop", 1280, 800],
+  ["desktop", 1440, 900],
 ];
 
 async function noHorizontalScroll(page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(overflow, "page must not scroll sideways").toBeLessThanOrEqual(1);
+  const offenders = overflow > 1 ? await page.evaluate(() => [...document.querySelectorAll("body *")].filter((e) => e.getBoundingClientRect().right > window.innerWidth + 1).slice(0, 5).map((e) => e.tagName + "." + String(e.className).slice(0, 80))) : [];
+  expect(overflow, `page must not scroll sideways (${page.url()}) ${JSON.stringify(offenders)}`).toBeLessThanOrEqual(1);
 }
 
 test.describe("responsive layout", () => {
@@ -30,116 +33,210 @@ test.describe("responsive layout", () => {
   }
 });
 
-test.describe("homepage: an editorial storefront, not a product list", () => {
-  test("hero, featured product, categories, best sellers, learning, recently added, footer", async ({ page }) => {
+test.describe("homepage: a real electronics store", () => {
+  test("utility bar, search bar, category bar, hero banner with promo tiles, shop sections, footer", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Turn Curiosity Into Creation.");
-    await expect(page.getByText("Learn by building").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Explore Products/ }).first()).toHaveAttribute("href", "/products");
-    await expect(page.getByRole("link", { name: "Discover Our Kits" })).toHaveAttribute("href", "/products?category=electronics-learning-kits");
-    // the catalog layout is NOT the homepage
+    await expect(page.locator("h1")).toHaveCount(1); // the page title is for screen readers; the banner carries the visible headline
+    // tier 1: utility bar
+    await expect(page.locator("[data-announcement]")).toContainText("Free shipping on orders above ₹999");
+    await expect(page.locator("[data-announcement]").getByRole("link", { name: "Track order" })).toBeVisible();
+    // tier 2: logo, one wide search bar with a category picker, account, cart
+    const header = page.getByRole("banner");
+    await expect(header.getByRole("searchbox", { name: "Search products" })).toBeVisible();
+    await expect(header.getByLabel("Search category")).toBeVisible();
+    await expect(header.getByRole("link", { name: "Log in" })).toBeVisible();
+    await expect(header.getByRole("link", { name: "Cart" })).toBeVisible();
+    // tier 3: category bar
+    const nav = page.getByRole("navigation", { name: "Main" });
+    await expect(nav.getByRole("link", { name: "All Categories" })).toBeVisible();
+    for (const label of ["Electronics Learning Kits", "IoT Development Boards", "Robotics", "Accessories", "Learning Resources", "About Us", "Contact"]) {
+      await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
+    // hero: slider + two promo tiles; the catalog layout is NOT the homepage
+    const banner = page.getByRole("region", { name: "Featured products" });
+    await expect(banner.getByRole("heading", { level: 2, name: "Walker Robot Kit" })).toBeVisible();
     await expect(page.getByText("Explore Our Products")).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Product categories" })).toHaveCount(0);
-
-    for (const name of ["Walker Robot Kit", "Everything that fits together", "Best Sellers", "Learning through hardware", "Recently Added"]) {
+    for (const name of ["Shop by category", "Deals", "Best Sellers", "New Arrivals", "Made for hands-on learning"]) {
       await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
     }
-    const nav = page.getByRole("navigation", { name: "Main" });
-    for (const label of ["Products", "Learning Resources", "About Us", "Contact"]) await expect(nav.getByRole("link", { name: label })).toBeVisible();
-    await expect(page.getByRole("banner").getByRole("button", { name: "Search products" })).toBeVisible();
-    await expect(page.getByRole("contentinfo")).toContainText("Privacy Policy");
-    await page.waitForTimeout(1200); // let the entrance animation finish
+    await expect(page.getByText("Sample product")).toHaveCount(0);
+    await expect(page.getByText("Demo image").first()).toBeVisible();
+    await expect(page.getByRole("contentinfo")).toContainText("Customer service");
+    await page.waitForTimeout(600);
     await page.screenshot({ path: `${SHOTS}/home-desktop-full.png`, fullPage: true });
   });
 
   for (const [name, width, height] of [["phone", 375, 812], ["laptop", 1280, 720]]) {
-    test(`the hero is compact and shows products on a ${name} (${width}x${height})`, async ({ page }) => {
+    test(`header and hero banner fit the first screen on a ${name} (${width}x${height})`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto("/");
-      await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
-      await expect(page.getByRole("link", { name: /Explore Products/ }).first()).toBeInViewport();
-      await expect(page.getByRole("link", { name: "View Circuit Starter Kit" }).first()).toBeAttached();
-      const hero = await page.locator("section[aria-labelledby=hero-h]").boundingBox();
-      if (width >= 1024) expect(hero.height, "the hero must not be excessively tall").toBeLessThan(height * 0.85);
-      await page.waitForTimeout(1200);
+      await expect(page.getByRole("banner").getByRole("searchbox", { name: "Search products" })).toBeInViewport(); // search is always on screen
+      await expect(page.getByRole("region", { name: "Featured products" }).getByRole("heading", { level: 2 }).first()).toBeInViewport();
+      if (width >= 1024) {
+        await expect(page.getByRole("button", { name: "Add to cart: Walker Robot Kit" })).toBeInViewport();
+        const hero = await page.getByRole("region", { name: "Featured products" }).boundingBox();
+        expect(hero.height, "the banner must not take over the whole screen").toBeLessThan(height * 0.75);
+      }
+      await page.waitForTimeout(600);
       await page.screenshot({ path: `${SHOTS}/home-first-screen-${name}.png` });
     });
   }
 
-  test("featured product: large image, details, features, price, Explore Product and Buy Now", async ({ page }) => {
+  test("hero slider: arrows and dots switch slides; each slide sells a real product", async ({ page }) => {
     await page.goto("/");
-    const spot = page.locator("section[aria-labelledby=featured-h]");
-    await expect(spot.getByRole("heading", { name: "Walker Robot Kit" })).toBeVisible();
-    await expect(spot.locator("img").first()).toBeVisible();
-    await expect(spot.getByText("₹2,999")).toBeVisible();
-    await expect(spot.getByText("In stock")).toBeVisible();
-    await expect(spot.getByRole("listitem")).not.toHaveCount(0); // key features
-    await expect(spot.getByRole("link", { name: "Explore product: Walker Robot Kit" })).toHaveAttribute("href", "/products/walker-robot-kit");
-    await spot.getByRole("button", { name: "Buy now: Walker Robot Kit" }).click();
-    await expect(page).toHaveURL(/\/(checkout|login)/); // login + OTP is required before paying
+    const banner = page.getByRole("region", { name: "Featured products" });
+    await expect(banner.getByRole("group", { name: "1 of 3" })).toBeVisible();
+    await expect(banner.getByText("₹2,999")).toBeVisible();
+    await expect(banner.getByRole("button", { name: "Add to cart: Walker Robot Kit" })).toBeVisible();
+    await banner.getByRole("button", { name: "Next slide" }).click();
+    await expect(banner.getByRole("group", { name: "2 of 3" })).toBeVisible();
+    await expect(banner.getByRole("heading", { level: 2, name: "Circuit Starter Kit" })).toBeVisible();
+    await expect(banner.getByRole("heading", { name: "Walker Robot Kit" })).toBeHidden();
+    await banner.getByRole("button", { name: "Go to slide 3" }).click();
+    await expect(banner.getByRole("group", { name: "3 of 3" })).toBeVisible();
+    await banner.getByRole("button", { name: "Next slide" }).click(); // wraps around
+    await expect(banner.getByRole("group", { name: "1 of 3" })).toBeVisible();
+    await banner.getByRole("button", { name: "Add to cart: Walker Robot Kit" }).click();
+    await expect(page.getByText("Walker Robot Kit added to your cart.")).toBeVisible();
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+    await banner.getByRole("link", { name: "View details: Walker Robot Kit" }).click();
+    await expect(page).toHaveURL(/\/products\/walker-robot-kit$/);
+  });
+
+  test("promo tiles beside the banner link to products that are not already in the banner", async ({ page }) => {
+    await page.goto("/");
+    const tiles = page.locator("section[aria-label=Featured]").getByRole("link", { name: /Shop now/ });
+    await expect(tiles).toHaveCount(2);
+    await expect(tiles.first()).toContainText("New arrival");
+    await expect(tiles.first()).toContainText("Prototyping Accessory Pack");
+    await tiles.first().click();
+    await expect(page).toHaveURL(/\/products\/prototyping-accessory-pack$/);
   });
 
   test("category cards link to the filtered catalog", async ({ page }) => {
     await page.goto("/");
-    const eco = page.locator("section[aria-labelledby=eco-h]");
+    const cats = page.locator("section[aria-labelledby=cat-h]");
     for (const [name, slug] of [["Electronics Learning Kits", "electronics-learning-kits"], ["IoT Development Boards", "iot-development-boards"], ["Robotics", "robotics"], ["Accessories", "accessories"]]) {
-      await expect(eco.getByRole("link", { name: new RegExp(name) })).toHaveAttribute("href", `/products?category=${slug}`);
+      await expect(cats.getByRole("link", { name: new RegExp(name) })).toHaveAttribute("href", `/products?category=${slug}`);
     }
-    await eco.getByRole("link", { name: /Robotics/ }).click();
+    await cats.getByRole("link", { name: /Robotics/ }).click();
     await expect(page).toHaveURL(/\/products\?category=robotics$/);
     await expect(page.locator("article:visible")).toHaveCount(1);
   });
 
-  test("best sellers and recently added are product cards with stock and quick add; nothing is repeated", async ({ page }) => {
+  test("deals, best sellers and new arrivals are product cards with price, stock and Add to Cart", async ({ page }) => {
     await page.goto("/");
+    const deals = page.locator("section[aria-labelledby=deals-h]");
+    await expect(deals.locator("article")).toHaveCount(1); // only products with a real discount
+    await expect(deals.locator("article")).toContainText("Sensor Explorer Pack");
+    await expect(deals.getByText("₹2,199")).toBeVisible(); // original price, struck through
+    await expect(deals.getByText("-14%")).toBeVisible();
+
     const best = page.locator("section[aria-labelledby=best-h]");
     await expect(best.locator("article")).toHaveCount(3);
     for (const title of ["Circuit Starter Kit", "Sensor Explorer Pack", "IoT Development Board"]) {
       const card = best.locator("article", { hasText: title });
       await expect(card.locator("img")).toBeVisible();
-      await expect(card.getByRole("link", { name: /Explore product/ })).toBeVisible();
+      await expect(card.getByRole("link", { name: /View details/ })).toBeVisible();
       await expect(card.getByRole("button", { name: `Add to cart: ${title}` })).toBeEnabled();
     }
     await expect(best.locator("article", { hasText: "Sensor Explorer Pack" }).getByText("Only 3 left")).toBeVisible();
     await best.getByRole("button", { name: "Add to cart: Circuit Starter Kit" }).click();
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
 
-    const recent = page.locator("section[aria-labelledby=recent-h]");
-    await expect(recent.locator("article")).toHaveCount(1);
-    await expect(recent.locator("article")).toContainText("Prototyping Accessory Pack");
-    // 3 best sellers + 1 new: the full catalog is not repeated on the homepage
-    await expect(page.locator("article:visible")).toHaveCount(4);
+    const fresh = page.locator("section[aria-labelledby=recent-h]");
+    await expect(fresh.locator("article")).toHaveCount(1);
+    await expect(fresh.locator("article")).toContainText("Prototyping Accessory Pack");
   });
 
-  test("Learning through hardware shows four subjects, and the nav link scrolls to it", async ({ page }) => {
+  test("use cases link to categories and the nav's Learning Resources scrolls to them", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/");
     const learning = page.locator("#learning");
-    for (const name of ["Electronics", "Programming", "IoT", "Robotics"]) await expect(learning.getByRole("heading", { level: 3, name })).toBeVisible();
+    for (const name of ["Classroom STEM lessons", "Coding with real hardware", "Connected projects", "Robotics clubs and workshops"]) {
+      await expect(learning.getByRole("heading", { level: 3, name })).toBeVisible();
+    }
+    await expect(learning.getByRole("link", { name: /Robotics clubs/ })).toHaveAttribute("href", "/products?category=robotics");
     await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learning Resources" }).click();
-    await expect(page.getByRole("heading", { name: "Learning through hardware" })).toBeInViewport();
+    await expect(page.getByRole("heading", { name: "Made for hands-on learning" })).toBeInViewport();
   });
 
-  test("the logo and Products link navigate between the homepage and the catalog", async ({ page }) => {
+  test("the All Categories mega menu lists categories and popular products (mouse and keyboard)", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/");
-    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Products" }).click();
+    const nav = page.getByRole("navigation", { name: "Main" });
+    await expect(nav.getByRole("link", { name: "All products" })).toBeHidden(); // closed
+    await nav.getByRole("link", { name: "All Categories" }).hover();
+    await expect(nav.getByRole("link", { name: "All products" })).toBeVisible();
+    await expect(nav.getByText("Popular products")).toBeVisible();
+    await nav.getByRole("link", { name: /Walker Robot Kit/ }).click();
+    await expect(page).toHaveURL(/\/products\/walker-robot-kit$/);
+    // keyboard: focusing the trigger opens the same menu
+    await page.goto("/");
+    await nav.getByRole("link", { name: "All Categories" }).focus();
+    await expect(nav.getByRole("link", { name: "All products" })).toBeVisible();
+  });
+
+  test("the logo and All Categories navigate between the homepage and the catalog", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "All Categories" }).click();
     await expect(page).toHaveURL(/\/products$/);
     await expect(page.getByRole("heading", { level: 1, name: "Explore Our Products" })).toBeVisible();
     await page.getByRole("link", { name: /BeaverLab X Shop home/ }).first().click();
     await expect(page).toHaveURL(/localhost:\d+\/$/);
-    await expect(page.getByRole("heading", { level: 1, name: "Turn Curiosity Into Creation." })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Featured products" })).toBeVisible();
   });
 
-  test("Escape closes the search box and returns focus to the search button", async ({ page }) => {
+  test("the search bar suggests products as you type, Escape closes them, Enter shows results, and the category picker narrows them", async ({ page }) => {
     await page.goto("/");
-    const trigger = page.getByRole("button", { name: "Search products" });
-    await trigger.click();
-    await expect(page.getByRole("searchbox", { name: "Search products" })).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    const box = page.getByRole("banner").getByRole("searchbox", { name: "Search products" });
+    await box.fill("robot");
+    const hit = page.getByRole("banner").getByRole("link", { name: /Walker Robot Kit/ });
+    await expect(hit).toBeVisible();
+    await expect(hit).toContainText("₹2,999");
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("searchbox", { name: "Search products" })).toHaveCount(0);
-    await expect(trigger).toBeFocused();
+    await expect(hit).toBeHidden();
+    await box.fill("kit");
+    await page.getByLabel("Search category").selectOption("robotics");
+    await box.press("Enter");
+    await expect(page).toHaveURL(/\/search\?q=kit&category=robotics$/);
+    await expect(page.getByText("1 product found in Robotics")).toBeVisible();
+    await expect(page.locator("article:visible")).toHaveCount(1);
+  });
+
+  test("on a phone the search bar sits under the logo row and the menu holds categories and help links", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const search = page.getByRole("banner").getByRole("searchbox", { name: "Search products" });
+    await search.fill("sensor");
+    await search.press("Enter");
+    await expect(page).toHaveURL(/\/search\?q=sensor$/);
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const menu = page.locator("#mobile-menu");
+    await expect(menu.getByRole("link", { name: "Robotics" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "Track an order" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "Help and FAQ" })).toBeVisible();
+  });
+});
+
+test.describe("footer", () => {
+  test("service highlights, shop and customer-service columns, contact, payment methods and legal links", async ({ page }) => {
+    await page.goto("/");
+    const band = page.getByRole("region", { name: "Shopping with us" });
+    await expect(band).toContainText("Free shipping above ₹999");
+    await expect(band).toContainText("Cash on delivery");
+    await expect(band).toContainText("GST invoice with every order");
+    const foot = page.getByRole("contentinfo");
+    for (const h of ["Shop", "Customer service", "Company", "Get in touch"]) await expect(foot.getByRole("heading", { level: 2, name: h })).toBeVisible();
+    for (const l of ["Track an order", "Shipping and delivery", "Returns and refunds", "Cancellation", "Warranty", "FAQ", "About Us", "Contact", "Robotics"]) {
+      await expect(foot.getByRole("link", { name: l, exact: true }).first()).toBeVisible();
+    }
+    await expect(foot).toContainText("We accept");
+    await expect(foot).toContainText("Cash on delivery");
+    for (const l of ["Privacy Policy", "Terms and Conditions", "Cookie Policy", "Back to top"]) await expect(foot.getByRole("link", { name: l })).toBeVisible();
+    await expect(foot).toContainText("inclusive of GST");
   });
 });
 
@@ -165,7 +262,7 @@ test.describe("catalog at /products: discovery only", () => {
     await expect(card.getByText("Your first real circuits, step by step.")).toBeVisible();
     await expect(card.getByText("₹1,499")).toBeVisible();
     await expect(card.getByText("In stock")).toBeVisible();
-    await expect(card.getByRole("link", { name: /Explore product/ })).toHaveAttribute("href", "/products/circuit-starter-kit");
+    await expect(card.getByRole("link", { name: /View details/ })).toHaveAttribute("href", "/products/circuit-starter-kit");
     await expect(card.getByRole("button", { name: "Add to cart: Circuit Starter Kit" })).toBeEnabled();
     const sold = page.locator("article", { hasText: "Smart Home IoT Kit" });
     await expect(sold.getByText("Out of stock")).toBeVisible();
@@ -203,6 +300,7 @@ test.describe("catalog at /products: discovery only", () => {
 
   test("sorting and the in-page search work together and can be cleared", async ({ page }) => {
     await page.goto("/products");
+    await page.waitForLoadState("networkidle"); // hydrated before we touch the controls
     const cards = page.locator("article:visible");
     await page.getByLabel("Sort by").selectOption("price-asc");
     await expect(page).toHaveURL(/sort=price-asc/);
@@ -221,7 +319,7 @@ test.describe("catalog at /products: discovery only", () => {
     await expect(cards.first()).toContainText("Circuit Starter Kit");
   });
 
-  test("Add to cart on a card updates the cart without leaving the page; Explore product opens the details page; the breadcrumb returns to the filtered catalog", async ({ page }) => {
+  test("Add to cart on a card updates the cart without leaving the page; View Details opens the details page; the breadcrumb returns to the filtered catalog", async ({ page }) => {
     await page.goto("/products");
     await page.getByRole("button", { name: "Add to cart: IoT Development Board" }).click();
     await expect(page.getByText("IoT Development Board added to your cart.")).toBeVisible();
@@ -230,7 +328,7 @@ test.describe("catalog at /products: discovery only", () => {
     await page.getByRole("button", { name: "Add to cart: IoT Development Board" }).click();
     await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
 
-    await page.locator("article", { hasText: "Walker Robot Kit" }).getByRole("link", { name: /Explore product/ }).click();
+    await page.locator("article", { hasText: "Walker Robot Kit" }).getByRole("link", { name: /View details/ }).click();
     await expect(page).toHaveURL(/\/products\/walker-robot-kit$/);
     await expect(page.getByRole("heading", { level: 1, name: "Walker Robot Kit" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Buy Now", exact: true })).toBeVisible();
@@ -241,9 +339,8 @@ test.describe("catalog at /products: discovery only", () => {
 
   test("header search finds products by name, description and category, and explains an empty result", async ({ page }) => {
     await page.goto("/products");
-    await page.getByRole("button", { name: "Search products" }).click();
-    const box = page.getByRole("searchbox", { name: "Search products" });
-    await expect(box).toBeFocused();
+    await page.waitForLoadState("networkidle");
+    const box = page.getByRole("banner").getByRole("searchbox", { name: "Search products" });
     await box.fill("robot");
     await box.press("Enter");
     await expect(page).toHaveURL(/\/search\?q=robot$/);
@@ -251,14 +348,12 @@ test.describe("catalog at /products: discovery only", () => {
     await expect(page.locator("article:visible")).toHaveCount(1);
     await expect(page.locator("article:visible").first()).toContainText("Walker Robot Kit");
 
-    await page.getByRole("button", { name: "Search products" }).click();
-    await page.getByRole("searchbox", { name: "Search products" }).fill("electronics kit");
-    await page.keyboard.press("Enter");
+    await box.fill("electronics kit");
+    await box.press("Enter");
     await expect(page.getByRole("heading", { level: 1, name: /electronics kit/ })).toBeVisible();
     await expect(page.locator("article:visible").first()).toBeVisible();
-    await page.getByRole("button", { name: "Search products" }).click();
-    await page.getByRole("searchbox", { name: "Search products" }).fill("zzzzqqq");
-    await page.keyboard.press("Enter");
+    await box.fill("zzzzqqq");
+    await box.press("Enter");
     await expect(page.getByText("No products match your search")).toBeVisible();
     await page.getByRole("link", { name: "Browse all products" }).click();
     await expect(page).toHaveURL(/\/products$/);
@@ -292,7 +387,7 @@ test("cart: add from a product page, change quantity, remove", async ({ page }) 
 
   await page.goto("/cart");
   await expect(page.getByRole("heading", { name: "Circuit Starter Kit" })).toBeVisible();
-  await expect(page.getByText("₹1,499").first()).toBeVisible();
+  await expect(page.getByRole("main").getByText("₹1,499").first()).toBeVisible();
   await page.getByRole("button", { name: "Increase quantity" }).click();
   await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
   await expect(page.getByText("₹2,998").first()).toBeVisible();
@@ -419,4 +514,52 @@ test.describe("accessibility (axe, including colour contrast)", () => {
       expect(bad.map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
     });
   }
+});
+
+test.describe("images and console", () => {
+  test("every product photo loads, product cards use different photos, and key pages log no errors", async ({ page }) => {
+    const problems = [];
+    page.on("console", (m) => m.type() === "error" && problems.push("console: " + m.text()));
+    page.on("pageerror", (e) => problems.push("pageerror: " + e.message));
+    page.on("response", (r) => r.status() >= 400 && problems.push(`http ${r.status()}: ${r.url()}`));
+
+    for (const path of ["/", "/products", "/products/walker-robot-kit", "/search?q=sensor", "/cart", "/about", "/contact", "/faq", "/login"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      // scroll through so lazy images load, then look for broken ones
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 600) {
+          window.scrollTo(0, y);
+          await new Promise((r) => setTimeout(r, 60));
+        }
+      });
+      await page.waitForTimeout(300);
+      const broken = await page.evaluate(() => [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.currentSrc || i.src));
+      expect(broken, `broken images on ${path}`).toEqual([]);
+    }
+
+    await page.goto("/products");
+    const srcs = await page.locator("article img").evaluateAll((imgs) => imgs.map((i) => { const u = new URL(i.currentSrc || i.src); return u.searchParams.get("url") ?? u.pathname; })); // optimised URLs carry the original in ?url=
+    expect(srcs).toHaveLength(6);
+    expect(new Set(srcs).size, "each product has its own photo").toBe(6);
+    expect(srcs.every((p) => p.startsWith("/images/placeholders/") && p.endsWith(".jpg"))).toBe(true); // real photographs, not illustrations
+    expect(problems).toEqual([]);
+  });
+});
+
+test.describe("links", () => {
+  test("every internal link on the main public pages resolves (no 404s)", async ({ page, request }) => {
+    const hrefs = new Set();
+    for (const path of ["/", "/products", "/products/walker-robot-kit", "/cart", "/about", "/contact", "/faq", "/login"]) {
+      await page.goto(path);
+      for (const h of await page.locator("a[href^='/']").evaluateAll((as) => as.map((a) => a.getAttribute("href")))) hrefs.add(h.split("#")[0] || "/");
+    }
+    expect(hrefs.size).toBeGreaterThan(15);
+    const bad = [];
+    for (const h of hrefs) {
+      const res = await request.get(h, { maxRedirects: 3 });
+      if (res.status() >= 400) bad.push(`${res.status()} ${h}`);
+    }
+    expect(bad).toEqual([]);
+  });
 });

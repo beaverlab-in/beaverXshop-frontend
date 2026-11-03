@@ -118,24 +118,24 @@ export default function LoginFlow() {
 
   return (
     <Card className="mx-auto w-full max-w-md p-6 sm:p-8">
-      <div className="mb-6 grid size-12 place-items-center rounded-2xl bg-tint text-brand">
+      <div className="mb-6 grid size-12 place-items-center rounded-2xl bg-subtle text-brand">
         <LockIcon className="size-6" />
       </div>
 
       {IS_DEMO && (
-        <p className="mb-6 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note">
+        <p className="mb-6 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note">
           <strong>Demo mode.</strong> No message is sent. Use the code <strong className="tabular-nums">{DEMO_OTP}</strong> to continue.
         </p>
       )}
       {!IS_DEMO && otpMode === "mock" && step === "otp" && (
-        <p className="mb-6 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note">
+        <p className="mb-6 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note">
           <strong>Development mode.</strong> WhatsApp delivery is not connected. The code is printed in the server console.
         </p>
       )}
 
       {step === "mobile" && (
         <form onSubmit={onMobileSubmit} noValidate>
-          <h1 className="text-3xl font-extrabold text-brand">Log in or sign up</h1>
+          <h1 className="text-3xl font-bold">Log in or sign up</h1>
           <p className="mt-2 text-muted">Enter your mobile number. We&apos;ll send a one-time code to verify it.</p>
           <div className="mt-6">
             <Field
@@ -167,7 +167,7 @@ export default function LoginFlow() {
 
       {step === "otp" && (
         <div>
-          <h1 className="text-3xl font-extrabold text-brand">Enter the code</h1>
+          <h1 className="text-3xl font-bold">Enter the code</h1>
           <p className="mt-2 text-muted">
             We sent a 6-digit code to <strong className="text-ink">{formatMobile(mobile)}</strong>.{" "}
             <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={() => { setStep("mobile"); setError(""); }}>
@@ -198,7 +198,7 @@ export default function LoginFlow() {
 
       {step === "profile" && (
         <form onSubmit={onProfileSubmit} noValidate>
-          <h1 className="text-3xl font-extrabold text-brand">Welcome! One last thing</h1>
+          <h1 className="text-3xl font-bold">Welcome! One last thing</h1>
           <p className="mt-2 text-muted">Tell us what to call you. This appears on your orders and invoices.</p>
           <div className="mt-6 space-y-4">
             <Field label="Full name" autoComplete="name" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} error={profileErrors.name} autoFocus />

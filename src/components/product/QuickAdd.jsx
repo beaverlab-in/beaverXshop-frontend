@@ -7,24 +7,24 @@ import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { MAX_QTY_PER_LINE } from "@/lib/constants";
 
-/** One-tap "Add to cart" for product cards (quantity 1). Sits above the card's click area. */
-export default function QuickAdd({ slug, title, stock }) {
+/** One-tap "Add to Cart" for product cards (quantity 1). Sits above the card's click area. */
+export default function QuickAdd({ slug, title, stock, size = "sm", variant = "primary", className = "" }) {
   const cart = useCart();
   const toast = useToast();
   const soldOut = stock <= 0;
 
   if (soldOut) {
     return (
-      <Button size="sm" variant="secondary" disabled className="relative z-10">
+      <Button size={size} variant="secondary" disabled className={`relative z-10 ${className}`}>
         Sold out
       </Button>
     );
   }
   return (
     <Button
-      size="sm"
-      variant="secondary"
-      className="relative z-10"
+      size={size}
+      variant={variant}
+      className={`relative z-10 ${className}`}
       aria-label={`Add to cart: ${title}`}
       onClick={() => {
         cart.add(slug, 1, Math.min(MAX_QTY_PER_LINE, stock));
@@ -37,7 +37,7 @@ export default function QuickAdd({ slug, title, stock }) {
         });
       }}
     >
-      <CartIcon className="size-4" /> Add to cart
+      <CartIcon className="size-4" /> Add to Cart
     </Button>
   );
 }

@@ -25,7 +25,7 @@ export default function AboutPage() {
         <JsonLd data={breadcrumbJsonLd(crumbs)} />
         <Breadcrumbs items={crumbs} />
         <header className="mt-6 max-w-3xl">
-          <h1 className="text-4xl font-extrabold text-brand md:text-5xl">About {BRAND_NAME}</h1>
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">About {BRAND_NAME}</h1>
           <p className="mt-5 text-xl leading-relaxed text-muted">
             We make our own educational electronics products, so students can learn electronics, robotics, IoT and programming through hands-on experiences.
           </p>

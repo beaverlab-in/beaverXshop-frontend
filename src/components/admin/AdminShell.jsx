@@ -81,7 +81,7 @@ function Notifications({ canSee }) {
 
   return (
     <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="relative grid size-10 place-items-center rounded-full hover:bg-tint/60" aria-label={`Notifications${items.length ? `, ${items.length} new` : ""}`} aria-expanded={open}>
+      <button type="button" onClick={() => setOpen((o) => !o)} className="relative grid size-10 place-items-center rounded-md hover:bg-subtle" aria-label={`Notifications${items.length ? `, ${items.length} new` : ""}`} aria-expanded={open}>
         <BellIcon className="size-5" />
         {items.length > 0 && <span className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-danger ring-2 ring-surface" />}
       </button>
@@ -94,7 +94,7 @@ function Notifications({ canSee }) {
             <ul>
               {items.map((i) => (
                 <li key={i.href}>
-                  <Link href={i.href} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2.5 text-sm hover:bg-tint/50">
+                  <Link href={i.href} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2.5 text-sm hover:bg-subtle">
                     {i.text}
                   </Link>
                 </li>
@@ -117,7 +117,7 @@ function ProfileMenu() {
   const initial = (user?.name || user?.mobile || "?").trim().slice(0, 1).toUpperCase();
   return (
     <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-tint/60" aria-expanded={open} aria-haspopup="menu">
+      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-subtle" aria-expanded={open} aria-haspopup="menu">
         <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">{initial}</span>
         <span className="hidden text-sm font-semibold sm:block">{user?.name || formatMobile(user?.mobile)}</span>
         <span className="sr-only"> account menu</span>
@@ -127,13 +127,13 @@ function ProfileMenu() {
           <div className="px-3 py-2">
             <p className="font-semibold">{user?.name || "Staff member"}</p>
             <p className="text-sm text-muted">{formatMobile(user?.mobile)}</p>
-            <p className="mt-1 inline-block rounded-full bg-tint px-2 py-0.5 text-xs font-semibold text-brand">{user?.role?.label}</p>
+            <p className="mt-1 inline-block rounded-full bg-subtle px-2 py-0.5 text-xs font-semibold text-brand">{user?.role?.label}</p>
           </div>
           <div className="my-1 border-t border-line" />
-          <Link href="/" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm hover:bg-tint/50">
+          <Link href="/" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm hover:bg-subtle">
             <StoreIcon className="size-4" /> View storefront
           </Link>
-          <Link href="/account" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm hover:bg-tint/50">
+          <Link href="/account" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm hover:bg-subtle">
             My shopper account
           </Link>
           <button
@@ -166,7 +166,7 @@ function SidebarNav({ pathname, permissions, onNavigate }) {
                 href={href}
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-[0.95rem] font-medium transition-colors ${active ? "bg-white/12 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"}`}
+                className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-[0.95rem] font-medium transition-colors ${active ? "bg-brand text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
               >
                 <Icon className="size-5" />
                 {label}
@@ -189,9 +189,9 @@ export default function AdminShell({ children }) {
   const permissions = user?.permissions ?? [];
 
   return (
-    <div className="min-h-dvh bg-canvas lg:grid lg:grid-cols-[16rem_1fr]">
+    <div className="min-h-dvh bg-subtle [--color-muted:#475569] lg:grid lg:grid-cols-[16rem_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh flex-col bg-night lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col bg-dark lg:flex">
         <div className="flex h-16 items-center border-b border-white/10 px-5">
           <Logo inverted />
         </div>
@@ -202,8 +202,8 @@ export default function AdminShell({ children }) {
       {/* Mobile drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
-          <button type="button" className="absolute inset-0 bg-night/60" aria-label="Close menu" onClick={() => setDrawerFor(null)} />
-          <aside className="relative flex h-full w-72 max-w-[85%] flex-col bg-night">
+          <button type="button" className="absolute inset-0 bg-dark/60" aria-label="Close menu" onClick={() => setDrawerFor(null)} />
+          <aside className="relative flex h-full w-72 max-w-[85%] flex-col bg-dark">
             <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
               <Logo inverted />
               <button type="button" onClick={() => setDrawerFor(null)} className="grid size-10 place-items-center rounded-full text-white hover:bg-white/10" aria-label="Close menu">
@@ -217,7 +217,7 @@ export default function AdminShell({ children }) {
 
       <div className="min-w-0">
         <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur sm:px-6">
-          <button type="button" onClick={() => setDrawerFor(pathname)} className="grid size-10 place-items-center rounded-full hover:bg-tint/60 lg:hidden" aria-label="Open menu">
+          <button type="button" onClick={() => setDrawerFor(pathname)} className="grid size-10 place-items-center rounded-md hover:bg-subtle lg:hidden" aria-label="Open menu">
             <MenuIcon className="size-6" />
           </button>
           <Breadcrumbs pathname={pathname} />
@@ -232,7 +232,7 @@ export default function AdminShell({ children }) {
             <label className="relative block">
               <span className="sr-only">Search orders by number, customer name or mobile</span>
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search orders, customers…" className="h-10 w-full rounded-full border border-line bg-canvas pr-3 pl-9 text-sm focus:border-brand focus:outline-none focus:ring-3 focus:ring-focus/25" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search orders, customers…" className="h-10 w-full rounded-md border border-line bg-subtle pr-3 pl-9 text-sm focus:border-brand focus:outline-none focus:ring-3 focus:ring-focus/25" />
             </label>
           </form>
           <div className="ml-auto flex items-center gap-1 sm:ml-0">

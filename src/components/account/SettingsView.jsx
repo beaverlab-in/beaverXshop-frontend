@@ -38,7 +38,7 @@ export default function SettingsView() {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-brand">Account settings</h1>
+      <h1 className="text-3xl font-bold">Account settings</h1>
       <Card className="mt-6 max-w-xl p-6 sm:p-8">
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <Field label="Mobile number" value={formatMobile(user?.mobile)} readOnly disabled hint="Your mobile number is verified and can't be changed here." />

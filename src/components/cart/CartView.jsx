@@ -60,8 +60,8 @@ export default function CartView() {
     <div className="grid items-start gap-8 lg:grid-cols-[1.6fr_1fr]">
       <section aria-label="Cart items" className={loading ? "opacity-70 transition-opacity" : "transition-opacity"}>
         {quote.issues.length > 0 && (
-          <div role="alert" className="mb-4 flex gap-3 rounded-md border border-accent/60 bg-accent/15 p-4 text-sm">
-            <AlertIcon className="mt-0.5 size-5 shrink-0 text-[#7a4d05]" />
+          <div role="alert" className="mb-4 flex gap-3 rounded-md border border-warning/40 bg-warning/10 p-4 text-sm">
+            <AlertIcon className="mt-0.5 size-5 shrink-0 text-warning-ink" />
             <ul className="space-y-1">
               {quote.issues.map((i) => (
                 <li key={i}>{i}</li>
@@ -73,7 +73,7 @@ export default function CartView() {
           {lines.map((line) => (
             <li key={line.slug}>
               <Card className="flex gap-4 p-4 sm:gap-6 sm:p-5">
-                <div className="relative aspect-[4/3] w-24 shrink-0 self-start overflow-hidden rounded-md bg-tint sm:w-36">
+                <div className="relative aspect-[4/3] w-24 shrink-0 self-start overflow-hidden rounded-md bg-subtle sm:w-36">
                   {line.image && <ProductImage image={{ ...line.image, alt: "" }} sizes="144px" />}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
@@ -102,7 +102,7 @@ export default function CartView() {
                     <button
                       type="button"
                       onClick={() => cart.remove(line.slug)}
-                      className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted hover:bg-danger/10 hover:text-danger"
+                      className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted hover:bg-danger/10 hover:text-danger-ink"
                       aria-label={`Remove ${line.title ?? line.slug} from cart`}
                     >
                       <TrashIcon className="size-4" /> Remove
@@ -146,7 +146,7 @@ export default function CartView() {
           <OrderTotals totals={quote} />
 
           {showFreeShippingHint && (
-            <div className="mt-5 rounded-md bg-tint/60 p-3 text-sm">
+            <div className="mt-5 rounded-md bg-subtle p-3 text-sm">
               <p>
                 Add <strong>{formatINR(toFree)}</strong> more for free shipping.
               </p>

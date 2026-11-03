@@ -38,7 +38,7 @@ export default function OrderDetail({ orderNumber }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="eyebrow">Order</p>
-          <h1 className="text-3xl font-extrabold text-brand tabular-nums">{order.orderNumber}</h1>
+          <h1 className="text-3xl font-bold tabular-nums">{order.orderNumber}</h1>
           <p className="text-muted">Placed on {formatDateTime(order.createdAt)}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -48,7 +48,7 @@ export default function OrderDetail({ orderNumber }) {
       </div>
 
       {order.demo && (
-        <p className="rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note">
+        <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note">
           <strong>Demo order.</strong> Created in demo mode. No payment was taken and nothing will be shipped.
         </p>
       )}
@@ -56,7 +56,7 @@ export default function OrderDetail({ orderNumber }) {
       <Card className="p-6">
         <OrderProgress status={order.status} />
         {order.shipment ? (
-          <div className="mt-6 rounded-md bg-tint/50 p-4 text-sm">
+          <div className="mt-6 rounded-md bg-subtle p-4 text-sm">
             <p>
               <span className="text-muted">Courier:</span> <strong>{order.shipment.courierName}</strong>
             </p>
@@ -82,7 +82,7 @@ export default function OrderDetail({ orderNumber }) {
           <ul className="divide-y divide-line">
             {order.items.map((item) => (
               <li key={item.slug} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-                <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-md bg-tint">
+                <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-md bg-subtle">
                   {item.image && <ProductImage image={{ ...item.image, alt: "" }} sizes="80px" />}
                 </div>
                 <div className="flex-1">

@@ -3,35 +3,38 @@
 /*
  * Design tokens. Single source of truth for colour, type, radius, shadow and motion.
  * Tailwind v4 turns every --color-* / --font-* / --radius-* / --shadow-* into utilities
- * (bg-canvas, text-ink, rounded-card, shadow-lift ...). See docs/ARCHITECTURE.md §1.
+ * (bg-subtle, text-ink, border-line, rounded-card, shadow-lift ...). See docs/ARCHITECTURE.md §1.
+ *
+ * One interactive colour (electric blue). Amber is only a small highlight (badges, notes, star-like marks).
+ * Status colours have an "-ink" twin for text, because the bright versions do not reach 4.5:1 on white.
  */
 @theme {
-  --color-canvas: #fff8f0;
-  --color-surface: #ffffff;
-  --color-tint: #e3ece1;
-  --color-ink: #14231c;
-  --color-muted: #4d5b54;
-  --color-brand: #1e4335;
-  --color-brand-dark: #17352a;
-  --color-brand-ink: #ffffff;
-  --color-accent: #e9a23b;
-  --color-line: #eadfd2;
-  --color-rule: #313c4c;
-  --color-night: #10231b;
-  --color-success: #1f7a4d;
-  --color-warning: #b7791f;
-  --color-danger: #b42318;
+  --color-canvas: #ffffff; /* page background */
+  --color-surface: #ffffff; /* cards, header, dialogs */
+  --color-subtle: #f4f6f8; /* secondary background: bands, image wells, table heads, hovers */
+  --color-ink: #111827; /* main text */
+  --color-muted: #64748b; /* secondary text */
+  --color-brand: #2563eb; /* primary interactive colour */
+  --color-brand-dark: #1d4ed8; /* primary hover / pressed */
+  --color-brand-soft: #eff6ff; /* tinted brand background (selected, info) */
+  --color-line: #e5e7eb; /* borders and dividers */
+  --color-dark: #111827; /* dark surfaces (footer, spotlight, admin sidebar) */
+  --color-success: #16a34a;
+  --color-success-ink: #166534;
+  --color-warning: #f59e0b;
+  --color-warning-ink: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-ink: #991b1b;
   --color-focus: #2563eb;
 
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
-  --radius-card: 1.25rem;
+  --radius-card: 1rem;
 
-  --shadow-card: 0 1px 0 rgb(20 35 28 / 0.04);
-  --shadow-lift: 0 12px 32px -12px rgb(20 35 28 / 0.18);
+  --shadow-card: 0 1px 2px rgb(17 24 39 / 0.04);
+  --shadow-lift: 0 14px 30px -12px rgb(17 24 39 / 0.22);
 
   --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
   --breakpoint-3xl: 120rem;
@@ -53,17 +56,17 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    color: var(--color-ink);
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
   :focus-visible {
-    outline: 3px solid var(--color-focus);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
     border-radius: 0.375rem;
   }
   ::selection {
-    background: var(--color-tint);
+    background: #dbeafe;
   }
   button,
   [role="button"],
@@ -78,7 +81,7 @@
 @layer components {
   .container-page {
     width: 100%;
-    max-width: 75rem;
+    max-width: 80rem;
     margin-inline: auto;
     padding-inline: 1rem;
   }
@@ -87,15 +90,20 @@
       padding-inline: 1.5rem;
     }
   }
+  @media (min-width: 1024px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
   .eyebrow {
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-brand);
   }
   .skeleton {
-    background: linear-gradient(90deg, #f1e8dc 25%, #f8f1e8 50%, #f1e8dc 75%);
+    background: linear-gradient(90deg, #eef1f5 25%, #f6f8fa 50%, #eef1f5 75%);
     background-size: 200% 100%;
     animation: shimmer 1.4s linear infinite;
     border-radius: var(--radius-md);
@@ -103,11 +111,13 @@
   .card-hover {
     transition:
       transform 250ms var(--ease-brand),
-      box-shadow 250ms var(--ease-brand);
+      box-shadow 250ms var(--ease-brand),
+      border-color 250ms var(--ease-brand);
   }
   .card-hover:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lift);
+    border-color: #cbd5e1;
   }
   /* Entrance for the hero only (page load, no scroll triggers). Delay comes from --d. */
   .rise {
@@ -115,10 +125,10 @@
     animation-delay: var(--d, 0ms);
   }
   .card-hover .media-zoom {
-    transition: transform 400ms var(--ease-brand);
+    transition: transform 500ms var(--ease-brand);
   }
   .card-hover:hover .media-zoom {
-    transform: scale(1.03);
+    transform: scale(1.04);
   }
 }
 
@@ -145,15 +155,6 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
   }
 }
 

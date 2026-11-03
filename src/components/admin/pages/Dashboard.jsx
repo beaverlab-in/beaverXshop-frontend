@@ -50,7 +50,7 @@ export default function Dashboard() {
             <StatCard label="Low stock" value={k.lowStockProducts} hint="At or below threshold" tone={k.lowStockProducts ? "danger" : "default"} href="/admin/inventory?filter=low" />
           </div>
           {k.codToCollectOrders > 0 && (
-            <p className="mt-4 rounded-md bg-tint/60 p-3 text-sm">
+            <p className="mt-4 rounded-md bg-subtle p-3 text-sm">
               <strong>{formatINR(k.codToCollectPaise)}</strong> of cash on delivery is still to be collected across {k.codToCollectOrders} order{k.codToCollectOrders === 1 ? "" : "s"}. It counts as revenue once marked collected.
             </p>
           )}
@@ -66,7 +66,7 @@ export default function Dashboard() {
                 <ol className="space-y-3">
                   {data.bestSellers.map((b, i) => (
                     <li key={b.slug} className="flex items-center gap-3">
-                      <span className="grid size-7 place-items-center rounded-full bg-tint text-xs font-bold text-brand">{i + 1}</span>
+                      <span className="grid size-7 place-items-center rounded-full bg-subtle text-xs font-bold text-brand">{i + 1}</span>
                       <span className="min-w-0 flex-1 truncate font-medium">{b.title}</span>
                       <span className="text-sm text-muted tabular-nums">{b.qty} sold</span>
                     </li>

@@ -30,7 +30,7 @@ export default function ContactForm() {
   return (
     <form action={formAction} noValidate className="space-y-4">
       {errors.form && (
-        <p role="alert" className="rounded-md bg-danger/10 p-3 text-sm font-medium text-danger">
+        <p role="alert" className="rounded-md bg-danger/10 p-3 text-sm font-medium text-danger-ink">
           {errors.form}
         </p>
       )}

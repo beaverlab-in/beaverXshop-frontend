@@ -48,7 +48,7 @@ export default async function LegalPage({ params }) {
     <Container className="max-w-3xl pt-8 pb-8">
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <Breadcrumbs items={crumbs} />
-      <h1 className="mt-6 text-4xl font-extrabold text-brand">{page.title}</h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight">{page.title}</h1>
       {page.updatedAt && <p className="mt-2 text-sm text-muted">Last updated {new Date(page.updatedAt).toISOString().slice(0, 10)}</p>}
       <div className="mt-8">
         {page.content ? (

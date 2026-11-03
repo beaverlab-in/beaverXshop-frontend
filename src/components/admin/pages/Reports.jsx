@@ -59,7 +59,7 @@ export default function Reports() {
       <Panel padded={false}>
         <DataTable caption={tab.label} columns={columns} rows={rows} loading={loading} rowKey={(r) => JSON.stringify(r)} empty="No data in this period." />
         {data && rows.length > 0 && Object.keys(data.totals).length > 0 && (
-          <dl className="flex flex-wrap gap-x-8 gap-y-2 border-t border-line bg-tint/30 px-5 py-4 text-sm">
+          <dl className="flex flex-wrap gap-x-8 gap-y-2 border-t border-line bg-subtle px-5 py-4 text-sm">
             {data.columns.filter((c) => c.kind === "money").map((c) => (
               <div key={c.key}><dt className="text-xs text-muted">Total {c.label.toLowerCase()}</dt><dd className="font-bold tabular-nums">{formatINR(data.totals[c.key])}</dd></div>
             ))}

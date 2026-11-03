@@ -10,7 +10,7 @@ export function Container({ className = "", as: Tag = "div", children, ...props 
 }
 
 export function Section({ className = "", id, children, tone = "canvas", ...props }) {
-  const bg = tone === "surface" ? "bg-surface" : tone === "tint" ? "bg-tint/50" : tone === "night" ? "bg-night text-white" : "";
+  const bg = tone === "surface" ? "bg-surface" : tone === "tint" ? "bg-subtle" : tone === "night" ? "bg-dark text-white" : "";
   return (
     <section id={id} className={`py-16 md:py-24 ${bg} ${className}`} {...props}>
       <Container>{children}</Container>
@@ -56,11 +56,11 @@ export function Breadcrumbs({ items }) {
 
 export function Badge({ tone = "neutral", children, className = "" }) {
   const tones = {
-    neutral: "bg-tint text-brand",
-    success: "bg-success/12 text-[#14573a]",
-    warning: "bg-accent/25 text-[#7a4d05]",
-    danger: "bg-danger/10 text-danger",
-    info: "bg-brand/10 text-brand",
+    neutral: "bg-subtle text-brand",
+    success: "bg-success/12 text-success-ink",
+    warning: "bg-warning/15 text-warning-ink",
+    danger: "bg-danger/10 text-danger-ink",
+    info: "bg-brand-soft text-brand-dark",
   };
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${tones[tone]} ${className}`}>

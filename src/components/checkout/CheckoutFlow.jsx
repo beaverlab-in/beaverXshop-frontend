@@ -28,7 +28,7 @@ function Stepper({ step }) {
   const pct = Math.round((Math.min(step, STEPS.length) / STEPS.length) * 100);
   return (
     <div className="mb-8">
-      <div className="h-1.5 overflow-hidden rounded-full bg-tint" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Checkout progress">
+      <div className="h-1.5 overflow-hidden rounded-full bg-subtle" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Checkout progress">
         <div className="h-full rounded-full bg-brand transition-[width] duration-500 ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
       </div>
       <ol className="mt-4 grid grid-cols-4 gap-2 text-center text-xs font-medium sm:text-sm">
@@ -38,7 +38,7 @@ function Stepper({ step }) {
           const current = n === step;
           return (
             <li key={label} aria-current={current ? "step" : undefined} className={current ? "text-brand" : done ? "text-ink" : "text-muted"}>
-              <span className={`mx-auto mb-1 grid size-7 place-items-center rounded-full text-xs font-bold ${done ? "bg-brand text-white" : current ? "border-2 border-brand text-brand" : "bg-tint text-muted"}`}>
+              <span className={`mx-auto mb-1 grid size-7 place-items-center rounded-full text-xs font-bold ${done ? "bg-brand text-white" : current ? "border-2 border-brand text-brand" : "bg-subtle text-muted"}`}>
                 {done ? <CheckIcon className="size-4" /> : n}
               </span>
               {label}
@@ -57,7 +57,7 @@ function Summary({ quote, children }) {
       <ul className="mb-5 space-y-3">
         {quote.lines.filter((l) => l.available).map((l) => (
           <li key={l.slug} className="flex items-center gap-3">
-            <div className="relative aspect-[4/3] w-14 shrink-0 overflow-hidden rounded-md bg-tint">
+            <div className="relative aspect-[4/3] w-14 shrink-0 overflow-hidden rounded-md bg-subtle">
               <ProductImage image={{ ...l.image, alt: "" }} sizes="56px" />
             </div>
             <div className="min-w-0 flex-1">
@@ -200,13 +200,13 @@ export default function CheckoutFlow() {
     <div>
       <Stepper step={step} />
       {IS_DEMO && (
-        <p className="mb-6 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note">
+        <p className="mb-6 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note">
           <strong>Demo checkout.</strong> No payment is taken and no order is shipped.
         </p>
       )}
       {quote.issues.length > 0 && (
-        <div role="alert" className="mb-6 flex gap-3 rounded-md border border-accent/60 bg-accent/15 p-4 text-sm">
-          <AlertIcon className="mt-0.5 size-5 shrink-0 text-[#7a4d05]" />
+        <div role="alert" className="mb-6 flex gap-3 rounded-md border border-warning/40 bg-warning/10 p-4 text-sm">
+          <AlertIcon className="mt-0.5 size-5 shrink-0 text-warning-ink" />
           <div>
             <ul className="space-y-1">{quote.issues.map((i) => <li key={i}>{i}</li>)}</ul>
             <Link href="/cart" className="mt-2 inline-block font-semibold text-brand underline underline-offset-4">Update your cart</Link>
@@ -257,7 +257,7 @@ export default function CheckoutFlow() {
                   <legend className="sr-only">Choose a delivery address</legend>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {addressList.map((a) => (
-                      <label key={a.id} className={`cursor-pointer rounded-card border p-4 transition-colors has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${selectedId === a.id ? "border-brand bg-tint/40" : "border-line hover:border-brand/40"}`}>
+                      <label key={a.id} className={`cursor-pointer rounded-card border p-4 transition-colors has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${selectedId === a.id ? "border-brand bg-subtle" : "border-line hover:border-brand/40"}`}>
                         <input type="radio" name="address" value={a.id} checked={selectedId === a.id} onChange={() => setAddressId(a.id)} className="sr-only" />
                         <div className="mb-2 flex items-center justify-between"><AddressBadges address={a} />{selectedId === a.id && <CheckIcon className="size-5 text-brand" />}</div>
                         <AddressText address={a} />
@@ -314,14 +314,14 @@ export default function CheckoutFlow() {
                       enabled: quote.payment.codEnabled,
                     },
                   ].filter((m) => m.enabled).map((m) => (
-                    <label key={m.id} className={`flex cursor-pointer gap-4 rounded-card border p-4 transition-colors has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${method === m.id ? "border-brand bg-tint/40" : "border-line hover:border-brand/40"}`}>
+                    <label key={m.id} className={`flex cursor-pointer gap-4 rounded-card border p-4 transition-colors has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${method === m.id ? "border-brand bg-subtle" : "border-line hover:border-brand/40"}`}>
                       <input type="radio" name="payment" value={m.id} checked={method === m.id} onChange={() => { setPaymentMethod(m.id); setPayError(""); }} className="mt-1 size-4 accent-[var(--color-brand)]" disabled={Boolean(pending)} />
                       <span><span className="block font-semibold">{m.title}</span><span className="block text-sm text-muted">{m.text}</span></span>
                     </label>
                   ))}
                 </div>
               </fieldset>
-              {payError && <p role="alert" className="mt-4 rounded-md bg-danger/10 p-3 text-sm font-medium text-danger">{payError}</p>}
+              {payError && <p role="alert" className="mt-4 rounded-md bg-danger/10 p-3 text-sm font-medium text-danger-ink">{payError}</p>}
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button variant="ghost" onClick={() => setStep(3)} disabled={busy}>Back</Button>
                 <Button size="lg" onClick={onPlaceOrder} loading={busy} disabled={cannotProceed || quoting}>
@@ -347,11 +347,11 @@ function Confirmation({ order }) {
       <span className="mx-auto grid size-20 place-items-center rounded-full bg-success text-white shadow-lift">
         <CheckIcon className="size-10" />
       </span>
-      <h1 className="mt-6 text-4xl font-extrabold text-brand">Thank you, your order is in!</h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight">Thank you, your order is in!</h1>
       <p className="mt-3 text-lg text-muted">
         Order <strong className="text-ink tabular-nums">{order.orderNumber}</strong> {isCod ? "has been placed. You'll pay when it arrives." : "is confirmed."}
       </p>
-      {order.demo && <p className="mt-4 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm">Demo mode: no payment was taken and nothing will be shipped.</p>}
+      {order.demo && <p className="mt-4 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">Demo mode: no payment was taken and nothing will be shipped.</p>}
 
       <Card className="mt-8 p-6 text-left">
         <h2 className="mb-3 text-lg font-bold">What happens next</h2>

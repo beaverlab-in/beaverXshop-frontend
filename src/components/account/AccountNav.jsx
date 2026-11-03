@@ -35,7 +35,7 @@ export default function AccountNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-11 items-center rounded-full px-4 font-medium transition-colors lg:rounded-md ${
-                  active ? "bg-brand text-white" : "text-ink/80 hover:bg-tint/60 hover:text-brand"
+                  active ? "bg-brand text-white" : "text-ink/80 hover:bg-subtle hover:text-brand"
                 }`}
               >
                 {item.label}

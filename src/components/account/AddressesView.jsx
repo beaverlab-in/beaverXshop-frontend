@@ -38,7 +38,7 @@ export default function AddressesView() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-extrabold text-brand">Saved addresses</h1>
+        <h1 className="text-3xl font-bold">Saved addresses</h1>
         {!editing && addresses.length > 0 && <Button onClick={() => setEditing("new")}>Add new address</Button>}
       </div>
       <p className="mt-2 text-muted">Orders keep their own copy of the delivery address. Editing a saved address never changes an existing order.</p>

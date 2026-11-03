@@ -5,9 +5,9 @@ import { BRAND_NAME, LOGO_URL } from "@/lib/env";
 function Mark({ className = "size-9" }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true" focusable="false">
-      <rect width="64" height="64" rx="16" fill="#1E4335" />
-      <path d="M20 16h14a9 9 0 0 1 0 16H20zM20 32h16a8 8 0 0 1 0 16H20z" fill="none" stroke="#FFF8F0" strokeWidth="5" strokeLinejoin="round" />
-      <circle cx="46" cy="18" r="4" fill="#E9A23B" />
+      <rect width="64" height="64" rx="16" fill="#2563EB" />
+      <path d="M20 16h14a9 9 0 0 1 0 16H20zM20 32h16a8 8 0 0 1 0 16H20z" fill="none" stroke="#FFFFFF" strokeWidth="5" strokeLinejoin="round" />
+      <circle cx="46" cy="18" r="4" fill="#F59E0B" />
     </svg>
   );
 }
@@ -21,7 +21,7 @@ export default function Logo({ inverted = false, className = "" }) {
       ) : (
         <Mark />
       )}
-      <span className={`font-display text-base leading-tight font-bold tracking-tight min-[400px]:text-lg ${inverted ? "text-white" : "text-brand"}`}>
+      <span className={`text-base leading-tight font-bold tracking-tight min-[400px]:text-lg ${inverted ? "text-white" : "text-ink"}`}>
         {BRAND_NAME}
       </span>
     </Link>

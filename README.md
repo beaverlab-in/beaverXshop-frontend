@@ -58,4 +58,5 @@ Set `NEXT_PUBLIC_BRAND_NAME` and optionally `NEXT_PUBLIC_LOGO_URL` to replace th
 - Unknown product/legal URLs render the 404 UI with `noindex` but the HTTP status is 200: with Partial Prefetching the app shell streams before the slug is checked. (`dynamicParams = false` is unavailable with Cache Components and would also hide products created after the build.)
 - `og-default.svg` is the requested SVG sharing image, but some social platforms only render raster Open Graph images; a PNG variant may be needed later.
 - Image upload to cloud storage is not built (admin enters image links/keys). Real WhatsApp OTP/messages, Ekart and Razorpay need your accounts; see the backend `docs/INTEGRATIONS.md` and `docs/LAUNCH-CHECKLIST.md`.
+- The product photos in `public/images/placeholders/` are free-licence **stock photos standing in for real product shots** (credits and licences: `docs/IMAGE-CREDITS.md`). Replace them before launch and delete the credits rows with them. Never present them as the exact products sold.
 - `npm audit`: moderate advisories only in dev-time ESLint tooling; runtime dependencies have 0 known vulnerabilities. Re-check before each release.

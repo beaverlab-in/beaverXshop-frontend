@@ -6,25 +6,27 @@ Versions: use the latest stable Next.js/React/Tailwind at scaffold time (verifie
 
 ---
 
-## 1. Design direction (from the reference screenshot)
+## 1. Design direction (current: consumer-electronics store)
 
-Sampled from the reference: page background `#FFF8F0` (warm off-white), nav/cards `#FFFFFF`, primary CTA / headline ink deep forest green `#1E4335`, illustration panel tint `#E3ECE1`, thin slate top rule `#313C4C`, large (~20 px) card radius with a hairline border, uppercase tracked micro-label above each product name, 3-column card grid with image-first cards, "Explore product →" text link, near-black product photography panels.
+The first design (cream and forest green) read as a school site, so the whole frontend was redesigned as a **modern, premium consumer-electronics store**: white and cool grey surfaces, one electric-blue interactive colour, real hardware photography, quiet product cards, and a SaaS-style admin. Nothing is copied from another brand.
 
-We take the **visual language**, not the content: no BeaverLab logo, photos, product names or copy are reused. Brand name is a setting (`NEXT_PUBLIC_BRAND_NAME`, default "BeaverLab" – see open question 1).
-
-### Tokens (CSS variables in `src/styles/tokens.css`, exposed through the Tailwind theme)
+### Tokens (the only source of colour, type, radius, shadow and motion: `@theme` in `src/app/globals.css`; Tailwind turns them into utilities such as `bg-subtle`, `text-muted`, `border-line`, `rounded-card`)
 
 | Group | Tokens |
 |---|---|
-| Colour | `--bg #FFF8F0` · `--surface #FFFFFF` · `--surface-tint #E3ECE1` · `--ink #14231C` · `--ink-muted #4D5B54` · `--brand #1E4335` (hover `#17352A`) · `--brand-ink #FFFFFF` · `--accent #E9A23B` (warm amber, sparing, Von Restorff highlights) · `--line #EADFD2` · `--rule #313C4C` · `--success #1F7A4D` · `--warning #B7791F` · `--danger #B42318` · `--focus #2563EB`. All text pairs checked ≥ 4.5:1 (AA). |
-| Type | Headings: a geometric/humanist sans via `next/font` (candidate: *Plus Jakarta Sans* or *Manrope*, final pick during build), body: *Inter*-class sans. Scale (rem): 0.75 · 0.875 · 1 · 1.125 · 1.25 · 1.5 · 2 · 2.75 · 3.75 (fluid `clamp()` for display sizes). Micro-label: 0.75rem, 600, `tracking-[0.12em]`, uppercase. |
-| Spacing | 4-pt base: 4 8 12 16 24 32 48 64 96 128; section padding `py-20 md:py-28`. |
-| Radius | `sm 8` · `md 12` · `lg 20` (cards) · `pill 999` (buttons). |
-| Shadow | `card: 0 1px 0 rgba(20,35,28,.04)` · `lift: 0 12px 32px -12px rgba(20,35,28,.18)` · `focus ring 3px`. |
-| Motion | 150 / 250 / 400 ms, `cubic-bezier(.2,.7,.2,1)`; card hover = 2 px lift + image scale 1.03; everything wrapped in `@media (prefers-reduced-motion: no-preference)`. |
-| Layout | Container max 1200 px, gutters 24 px (16 on mobile); breakpoints Tailwind defaults (sm 640 / md 768 / lg 1024 / xl 1280). |
+| Colour | `canvas/surface #FFFFFF` (page, cards) · `subtle #F4F6F8` (secondary background: bands, image wells, hovers) · `ink #111827` (text) · `muted #64748B` (secondary text) · `brand #2563EB` (all interactive elements) · `brand-dark #1D4ED8` (hover) · `brand-soft #EFF6FF` (selected / info tint) · `line #E5E7EB` (borders) · `dark #111827` (footer, showcase, admin sidebar) · `success #16A34A` · `warning #F59E0B` (small highlights only) · `danger #DC2626`. Status colours have an `-ink` twin (`success-ink`, `warning-ink`, `danger-ink`) for text on tinted backgrounds, because the bright versions miss 4.5:1. The admin shell darkens `--color-muted` locally for the same reason (its background is `subtle`). |
+| Type | One family: **Inter** (`next/font`, variable `--font-inter`). Headings 600-700 with slight negative tracking; page titles `text-2xl/3xl`, section titles `text-2xl/3xl`; the homepage showcase is the only `text-5xl`. Prices are bold with tabular numerals. |
+| Radius | `sm 8` · `md 12` (buttons, inputs) · `card 16` (cards) · `3xl` for large panels. |
+| Shadow | `card` (1px hairline) · `lift` (hover elevation). |
+| Motion | 200-500 ms, `cubic-bezier(.2,.7,.2,1)`; card hover = 2px lift + image zoom 1.04; the dropdown fades in; all of it respects `prefers-reduced-motion`. |
+| Layout | Container max 80rem (1280px), gutters 16 / 24 / 32px; Tailwind default breakpoints. |
 
-Components (all in `src/components/ui`, token-driven, documented in a `/design` dev-only route): `Button` (primary/secondary/ghost/link, sizes, loading), `Card`, `Badge`, `Eyebrow`, `Input`/`Select`/`Textarea`/`Field` (label+hint+error), `OtpInput`, `QuantityStepper`, `Tabs`, `Accordion`, `Breadcrumbs`, `Tooltip`, `Modal/ConfirmDialog`, `Toast`, `Skeleton`, `EmptyState`, `ErrorState`, `Pagination`, `Table` (admin), `StatCard`, `Chart` wrappers (admin), `Price`, `StockBadge`, `ProductCard`, `Section`, `Container`.
+Buttons (`components/ui/Button.jsx`): **primary** (blue, white text), **secondary** (white, grey border), **ghost**, **danger**, **inverse** (white, for dark surfaces); sizes `sm/md/lg`; `loading`, `disabled` and focus-visible states are built in. Amber is never a button colour.
+
+### Imagery
+Real stock photographs of generic electronics hardware stand in for product photos (`public/images/placeholders/*.jpg`, 12 files, credited in [IMAGE-CREDITS.md](./IMAGE-CREDITS.md)). They are **placeholders, not the products being sold**: the sample data points at them, demo mode labels them "Demo image" quietly, and alt text says "Stock photo: …". Product cards use a 4:3 well on `subtle`; a photo can set `fit: "contain"` (very wide or tall shots) so nothing is cropped. A product with no photos shows a neutral `no-photo.svg`. Real photographs uploaded through the admin replace them with no code change.
+
+Components live in `src/components/ui` (token-driven): `Button`, `Card`, `Badge`, `Field`, `OtpInput`, `QuantityStepper`, `Breadcrumbs`, `Modal`, toasts, skeletons, empty and error states; product pieces in `components/product` (`ProductCard`, `ProductImage`, `Price`, `StockBadge`, `QuickAdd`, `Gallery`).
 
 ## 2. Rendering strategy
 - **Server Components by default** for Home, Products, PDP, About, FAQ, legal pages; data fetched server-side from the backend with `fetch(..., { next: { revalidate: 300, tags: ['products'] } })`. Backend calls `POST /api/revalidate` (secret header) after product/stock/settings change.
@@ -64,13 +66,13 @@ beaverxshop-frontend/
 
 ## 4. Page plans (high level)
 
-**Nav**: logo · Products · Learning Resources · About Us · Contact · search icon · account icon · cart icon (count). *"Learning Resources" has no page of its own, so it links to the compact `#learning` section at the bottom of the store.* Mobile: slide-down menu with the search, account and cart icons always visible. Sticky header with hairline border on scroll.
+**Header** (modelled on how electronics shops such as Adafruit and SparkFun, and large marketplaces, lay it out): three tiers. (1) A thin dark **utility bar**: the staff announcement when switched on (Settings > Storefront), otherwise the free-shipping offer from Settings, plus Track order, Help & FAQ, Contact and the support phone when set. (2) The **main row**: logo, one wide **search bar** with a category picker and live product suggestions (Enter goes to `/search?q=…&category=…`), account and cart with a live item count. (3) A **category bar**: a blue "All Categories" button that opens a mega menu (every category plus popular products with photo and price; opens on hover and on keyboard focus), the categories as links, and Learning Resources, About Us and Contact on the right. On phones the search bar sits under the logo row and the menu drawer holds categories, account, order tracking and help. The skip link is the first tab stop.
 
-**Home `/`** (Server): an editorial storefront, not a product list. Compact hero (eyebrow, "Turn Curiosity Into Creation.", two CTAs, a studio composition of up to three real product images) → Featured product spotlight (dark panel: large image, tagline, key features, price, stock, Explore Product + Buy Now) → Product ecosystem (category cards, an asymmetric bento when there are exactly four) → Best Sellers (3-4 cards) → Learning through hardware (Electronics, Programming, IoT, Robotics) → Recently Added (only when products were published in the last 60 days) → Footer. Selection comes from `getHomeSections()` in `lib/data/catalog.js` and uses admin flags, never invented data: featured = first in-stock product flagged `isFeatured` (else the first in-stock product); best sellers = products flagged `isBestSeller` (when none are flagged the row is titled "Start Here" and shows the first in-stock products); recently added = `createdAt` within 60 days, excluding anything already shown. Admins set the flags in the product form's Homepage panel.
+**Home `/`** (Server), in the usual shop order: **hero** = a slider banner (featured product plus up to two more, each on a different palette surface, previous/next arrows and dots, no autoplay) beside **two promo tiles** (a new arrival, a discounted product, else other products; never one already in the banner) → **Shop by category** (photo cards linking to the filtered catalog) → **Best Sellers** → **Deals** and **New Arrivals** side by side (Deals only lists products with a real compare-at price; New Arrivals only products published in the last 60 days; one or two products are shown as wide cards so a short row never looks empty) → "Made for hands-on learning" use cases (anchor `#learning`). The page's H1 is for screen readers. Data comes from `getHomeSections()` in `lib/data/catalog.js` and admin flags, never invented numbers: featured = first in-stock product flagged `isFeatured`; best sellers = products flagged `isBestSeller` (none flagged: the row is titled "Start Here").
 
 **Catalog `/products`**: discovery only. Category tabs, an in-page search box, a sort menu (Featured, price low to high / high to low, name) and the full grid. All three controls live in the URL (`/products?category=robotics&sort=price-asc&q=kit`) so views are linkable and product breadcrumbs can return to them. The server HTML always contains every product; the controls only hide cards once the page is interactive. **Search**: the header icon opens a dialog and goes to `/search?q=…` (server-side word match over name, description, category, features).
 
-**PDP**: gallery (thumbs + zoom, keyboard accessible) · title, intro, price (+compare-at if set), stock badge, qty stepper, Add to Cart, Buy Now · sticky mobile buy bar · tabbed/anchored sections: Overview/Features, What you can build, Learning outcomes, What's in the box, Specifications, Compatibility, Resources (only if present), Warranty (only if configured), FAQ accordion · Related products · JSON-LD Product + Breadcrumb. Sections with no data are omitted, not stubbed.
+**PDP**: gallery (thumbnail column on desktop, strip on phones; hover zoom toward the pointer) · category, name, tagline, price (+ original price only when discounted), stock, GST note, description, quantity, Add to Cart, Buy Now · a Delivery information card built from real settings (shipping charge, free-shipping threshold, COD) · a sticky section bar · cards for Features, What you can build, What you'll learn, What's inside the box, Specifications, Compatibility, Warranty · FAQ accordion · related products · JSON-LD Product, Breadcrumb and FAQ. Sections with no data are omitted. No ratings are shown because there is no review system.
 
 **Cart**: line list, stepper, remove, coupon field, server-quoted totals (subtotal, discount, shipping, GST, payable). Guests use localStorage cart; merge on login.
 
@@ -94,7 +96,7 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 ## 8. Open questions
 1. Is **BeaverLab** your own brand name/logo (use as default), or should the storefront use "beaverXshop"/another name? (Repo names say beaverXshop; the brief says BeaverLab.)
 2. Real product photos/logo available now? *Default: SVG placeholders + replaceable logo asset.*
-3. Font preference? *Default: Plus Jakarta Sans/Manrope + Inter (self-hosted via `next/font`).*
+3. Font preference? *Answered: one family, Inter (premium electronics direction).*
 
 ---
 
@@ -105,7 +107,7 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 **Deviations from §1–§8:**
 - This Next.js version (16.4) renames `middleware` to **`proxy`** and ships with **Cache Components**. Data access uses `"use cache"` + `cacheLife`/`cacheTag`; the plan's `fetch(..., {next:{revalidate}})` is superseded. Tags: `products`, `categories`, `settings`, `legal`, `product:<slug>`, `legal:<slug>`. A `proxy.js` auth redirect is **not** added yet: pages are gated by a client `AuthGate` (UX only) and the real check is the backend. It will be added with the API integration.
 - Tailwind v4: tokens live in `@theme` inside `globals.css` (no `tailwind.config.js`).
-- Fonts: Plus Jakarta Sans (headings) + Inter (body) via `next/font/google`.
+- Fonts: Inter only (one family, via `next/font/google`, self-hosted at build time).
 - `/login` is a single mobile + OTP flow; sign-up is implicit and a first-time user is asked for a name.
 - The catalog has no pagination (limited catalog by design); add it, and move filtering and sorting server-side, when the catalog grows.
 - Cart page and checkout price via a **Server Action** (`getQuoteAction`), mirroring backend `POST /checkout/quote`.
@@ -134,3 +136,7 @@ Not built / known gaps: image **upload** to cloud storage (images are entered as
 ## 12. Phase 6 as-built (admin notifications)
 
 `/admin/notifications` is now a working screen: a mode banner (simulated / not connected / live), counters, **History** (filters, last error, retry, "send queued now") and **Templates** (provider template name, language, approval status, preview text, on/off). Settings > Integrations shows the real WhatsApp and shipping state. The customer side needed no change: courier, tracking number and the order timeline already come from the shipment record.
+
+
+## Footer (current)
+A **service band** above the footer (free shipping above the configured amount, cash on delivery or secure online payments, GST invoice with every order, support contact; each shown only when Settings support it), then a dark footer: brand and company identity (legal name and GSTIN when set) with social links, **Shop** (every category), **Customer service** (track order, shipping, returns and refunds, cancellation, warranty, FAQ), **Company** (About, Learning Resources, Contact), **Get in touch** (email, phone, hours, address when set). The bottom bar has the copyright with "prices in INR, inclusive of GST" (from Settings), the accepted payment methods as plain text chips (Cash on delivery when enabled; UPI, Cards and Net banking in API mode, since Razorpay checkout provides them), the main legal links and Back to top. There is deliberately no newsletter box: there is no backend to receive it.

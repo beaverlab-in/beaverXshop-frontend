@@ -27,7 +27,7 @@ export function OrderProgress({ status }) {
         const done = i <= index;
         return (
           <li key={step} className="relative flex flex-col items-center text-center" aria-current={i === index ? "step" : undefined}>
-            <span className={`grid size-8 place-items-center rounded-full text-sm font-bold ${done ? "bg-brand text-white" : "bg-tint text-muted"}`}>
+            <span className={`grid size-8 place-items-center rounded-full text-sm font-bold ${done ? "bg-brand text-white" : "bg-subtle text-muted"}`}>
               {done ? "✓" : i + 1}
             </span>
             <span className={`mt-2 text-xs font-medium sm:text-sm ${done ? "text-ink" : "text-muted"}`}>{ORDER_STATUS[step].label}</span>

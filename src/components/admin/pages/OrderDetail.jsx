@@ -74,8 +74,8 @@ export default function OrderDetail({ id }) {
         }
       />
       <ErrorBanner error={error} onRetry={reload} />
-      {order.flags.includes("late_payment") && <p className="mb-4 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note"><strong>Late payment.</strong> Money arrived after this order was cancelled; an automatic refund was attempted. Check the payment section.</p>}
-      {order.flags.includes("invoice_pending") && !order.invoice && <p className="mb-4 rounded-md border border-accent/60 bg-accent/15 p-3 text-sm" role="note"><strong>Invoice pending.</strong> It couldn&apos;t be issued, usually because GSTIN or business details are missing in Settings. Fix that, then use &ldquo;Issue invoice&rdquo;.</p>}
+      {order.flags.includes("late_payment") && <p className="mb-4 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note"><strong>Late payment.</strong> Money arrived after this order was cancelled; an automatic refund was attempted. Check the payment section.</p>}
+      {order.flags.includes("invoice_pending") && !order.invoice && <p className="mb-4 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm" role="note"><strong>Invoice pending.</strong> It couldn&apos;t be issued, usually because GSTIN or business details are missing in Settings. Fix that, then use &ldquo;Issue invoice&rdquo;.</p>}
 
       <Panel className="mb-6">
         <OrderProgress status={order.status} />
@@ -256,7 +256,7 @@ export default function OrderDetail({ id }) {
         </div>
         {formError && <p role="alert" className="mt-3 text-sm font-medium text-danger">{formError}</p>}
         {needsReauth && (
-          <div className="mt-3 rounded-md bg-accent/15 p-3 text-sm">
+          <div className="mt-3 rounded-md bg-warning/10 p-3 text-sm">
             For your security, refunds need a fresh sign-in. <button type="button" className="font-semibold text-brand underline underline-offset-4" onClick={async () => { await signOut(); router.replace(`/login?next=/admin/orders/${id}`); }}>Sign in again</button>
           </div>
         )}

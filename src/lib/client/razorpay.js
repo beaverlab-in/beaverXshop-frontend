@@ -28,7 +28,7 @@ export async function openRazorpay({ keyId, orderId, amountPaise, brandName, pre
       currency: "INR",
       name: brandName,
       prefill,
-      theme: { color: "#1E4335" },
+      theme: { color: "#2563EB" },
       handler: (response) => resolve(response),
       modal: { ondismiss: () => reject({ code: "CANCELLED", message: "Payment was cancelled." }) },
     });

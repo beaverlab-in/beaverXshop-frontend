@@ -64,7 +64,7 @@ export default function Products() {
             { key: "title", header: "Product", render: (p) => <><Link href={`/admin/products/${p.id}`} className="font-semibold text-brand hover:underline" onClick={(e) => e.stopPropagation()}>{p.title}</Link><br /><span className="text-xs text-muted">{p.sku}</span></> },
             { key: "categoryId", header: "Category", render: (p) => names.get(p.categoryId) ?? "—" },
             { key: "status", header: "Status", render: (p) => <Badge tone={TONE[p.status]}>{p.status}</Badge> },
-            { key: "stock", header: "Stock", align: "right", render: (p) => <span className={p.stock <= 0 ? "font-semibold text-danger" : p.stock <= p.lowStockThreshold ? "font-semibold text-[#8a5a00]" : ""}>{p.stock}</span> },
+            { key: "stock", header: "Stock", align: "right", render: (p) => <span className={p.stock <= 0 ? "font-semibold text-danger" : p.stock <= p.lowStockThreshold ? "font-semibold text-warning-ink" : ""}>{p.stock}</span> },
             { key: "pricePaise", header: "Price", align: "right", render: (p) => formatINR(p.pricePaise) },
           ]}
         />

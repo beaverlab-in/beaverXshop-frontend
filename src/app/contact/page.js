@@ -19,7 +19,7 @@ export default async function ContactPage() {
     <Container className="pt-8 pb-8">
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <Breadcrumbs items={crumbs} />
-      <h1 className="mt-6 text-4xl font-extrabold text-brand md:text-5xl">Contact us</h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">Contact us</h1>
       <p className="mt-4 max-w-2xl text-lg text-muted">Questions about a product, an order or choosing the right kit? Send us a message.</p>
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
         <Card className="p-6 sm:p-8">
