@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Electronics learning kit illustration"><rect width="800" height="600" fill="#E3ECE1"/><circle cx="90" cy="90" r="5" fill="#1E4335" opacity=".35"/><circle cx="710" cy="520" r="6" fill="#E9A23B"/><circle cx="700" cy="110" r="4" fill="#1E4335" opacity=".35"/>
+<rect x="150" y="150" width="500" height="300" rx="22" fill="#fff" stroke="#1E4335" stroke-width="6"/>
+<g fill="#1E4335"><circle cx="210" cy="210" r="7"/><circle cx="250" cy="210" r="7"/><circle cx="290" cy="210" r="7"/><circle cx="330" cy="210" r="7"/><circle cx="370" cy="210" r="7"/><circle cx="410" cy="210" r="7"/><circle cx="450" cy="210" r="7"/><circle cx="490" cy="210" r="7"/><circle cx="530" cy="210" r="7"/><circle cx="570" cy="210" r="7"/>
+<circle cx="210" cy="390" r="7"/><circle cx="250" cy="390" r="7"/><circle cx="290" cy="390" r="7"/><circle cx="330" cy="390" r="7"/><circle cx="370" cy="390" r="7"/><circle cx="410" cy="390" r="7"/><circle cx="450" cy="390" r="7"/><circle cx="490" cy="390" r="7"/><circle cx="530" cy="390" r="7"/><circle cx="570" cy="390" r="7"/></g>
+<path d="M250 210v60h120v60M490 390v-60h-80" fill="none" stroke="#E9A23B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="250" cy="300" r="26" fill="#E9A23B"/><circle cx="250" cy="300" r="11" fill="#fff"/>
+<rect x="330" y="290" width="80" height="26" rx="13" fill="#1E4335"/><rect x="345" y="296" width="12" height="14" fill="#E9A23B"/><rect x="368" y="296" width="12" height="14" fill="#fff"/><rect x="391" y="296" width="12" height="14" fill="#E9A23B"/>
+<rect x="500" y="270" width="64" height="64" rx="12" fill="#1E4335"/><circle cx="532" cy="302" r="16" fill="#fff"/></svg>

@@ -95,3 +95,26 @@ Design tokens + UI kit, header/footer, Home, Products, PDP, Cart, Checkout UI, L
 1. Is **BeaverLab** your own brand name/logo (use as default), or should the storefront use "beaverXshop"/another name? (Repo names say beaverXshop; the brief says BeaverLab.)
 2. Real product photos/logo available now? *Default: SVG placeholders + replaceable logo asset.*
 3. Font preference? *Default: Plus Jakarta Sans/Manrope + Inter (self-hosted via `next/font`).*
+
+---
+
+## 9. Decisions after approval & as-built notes (Phase 2)
+
+**Owner decisions:** brand name is **BeaverLab X Shop** (`NEXT_PUBLIC_BRAND_NAME`); GST inclusive/exclusive, shipping charges and **Cash on Delivery** are all **admin-manageable store settings** (the storefront renders whatever the server quote returns); **login + phone OTP is mandatory to place an order** (no guest checkout, guests may browse and build a cart); SVG placeholders and a replaceable logo (`NEXT_PUBLIC_LOGO_URL`).
+
+**Deviations from §1–§8:**
+- This Next.js version (16.4) renames `middleware` to **`proxy`** and ships with **Cache Components**. Data access uses `"use cache"` + `cacheLife`/`cacheTag`; the plan's `fetch(..., {next:{revalidate}})` is superseded. Tags: `products`, `categories`, `settings`, `legal`, `product:<slug>`, `legal:<slug>`. A `proxy.js` auth redirect is **not** added yet: pages are gated by a client `AuthGate` (UX only) and the real check is the backend. It will be added with the API integration.
+- Tailwind v4: tokens live in `@theme` inside `globals.css` (no `tailwind.config.js`).
+- Fonts: Plus Jakarta Sans (headings) + Inter (body) via `next/font/google`.
+- `/login` is a single mobile + OTP flow; sign-up is implicit and a first-time user is asked for a name.
+- Products page groups by category with anchor links and has no pagination or filters (limited catalog by design); add pagination when the catalog grows.
+- Cart page and checkout price via a **Server Action** (`getQuoteAction`), mirroring backend `POST /checkout/quote`.
+- Checkout steps: Your details → Delivery address → Review → Payment (online/COD per quote) → Confirmation.
+- Razorpay launcher exists (`src/lib/client/razorpay.js`) but is **not exercised** until the backend exists. The browser callback is never treated as proof of payment; it is sent to `/payments/verify`.
+- Admin UI is not started (Phase 5).
+
+**Sample/demo mode:** `NEXT_PUBLIC_DATA_SOURCE=placeholder` serves a sample catalog and a localStorage demo account (OTP `123456`). Every demo surface is labelled. This is a development aid, not a production path.
+
+**Known limitation:** unknown product/legal slugs show the 404 UI with `noindex` but return HTTP 200 (Partial Prefetching streams the shell first; `dynamicParams` is unavailable under Cache Components).
+
+**Verification done:** `npm run lint` (0 problems), `npm run build` (all routes prerender/partial-prerender), `npm test` (9 unit tests: money/GST rounding, mobile/PIN/address validation), production server smoke test (status codes, single H1, canonical, JSON-LD, noindex on private/unpublished pages, sitemap, robots, llms.txt, security headers, `/api/revalidate` rejects missing secret). **Not yet verified in a browser:** cart → checkout → confirmation interaction, mobile layout (the browser tool disconnected mid-session).
