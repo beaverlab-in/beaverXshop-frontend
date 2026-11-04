@@ -1,13 +1,47 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
+import CollectionNotice, { useCollectionNotice } from "@/components/account/privacy/CollectionNotice";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import { CheckIcon } from "@/components/ui/Icons";
-import { submitContactAction } from "@/app/actions/contact";
+import { submitContact } from "@/lib/client/privacyApi";
+import { IS_DEMO } from "@/lib/env";
+import { isValidEmail, normalizeMobile } from "@/lib/validation";
 
+/**
+ * Support contact form. It is sent from the browser (not a server action) so that, when you are signed in, your session links the
+ * message to your account. That is what lets an access, correction or erasure request find it later.
+ */
 export default function ContactForm() {
-  const [state, formAction, pending] = useActionState(submitContactAction, null);
+  const notice = useCollectionNotice();
+  const [state, setState] = useState(null); // null | { ok, demo } | { errors, values }
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const values = { name: String(fd.get("name") ?? "").trim(), email: String(fd.get("email") ?? "").trim(), mobile: String(fd.get("mobile") ?? "").trim(), message: String(fd.get("message") ?? "").trim() };
+    if (String(fd.get("website") ?? "")) return setState({ ok: true, demo: false }); // bots: pretend success, send nothing
+
+    const errors = {};
+    if (values.name.length < 2) errors.name = "Please tell us your name.";
+    if (!isValidEmail(values.email)) errors.email = "Enter a valid email address.";
+    if (values.mobile && !normalizeMobile(values.mobile)) errors.mobile = "Enter a valid 10-digit mobile number or leave it blank.";
+    if (values.message.length < 10) errors.message = "Please write at least a short sentence (10 characters).";
+    if (Object.keys(errors).length) return setState({ errors, values });
+
+    if (IS_DEMO) return setState({ ok: true, demo: true });
+    setPending(true);
+    try {
+      await submitContact({ name: values.name, email: values.email, mobile: normalizeMobile(values.mobile) || undefined, message: values.message, noticeVersion: notice?.version });
+      setState({ ok: true, demo: false });
+    } catch (err) {
+      setState({ errors: { form: err.status === 429 ? "Too many messages from this device. Please try again later." : "We couldn't send your message right now. Please try again in a moment." }, values });
+    } finally {
+      setPending(false);
+    }
+  }
 
   if (state?.ok) {
     return (
@@ -28,7 +62,7 @@ export default function ContactForm() {
   const errors = state?.errors ?? {};
   const v = state?.values ?? {};
   return (
-    <form action={formAction} noValidate className="space-y-4">
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
       {errors.form && (
         <p role="alert" className="rounded-md bg-danger/10 p-3 text-sm font-medium text-danger-ink">
           {errors.form}
@@ -47,6 +81,7 @@ export default function ContactForm() {
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
+      <CollectionNotice context="contact" />
       <Button type="submit" size="lg" loading={pending}>
         Send message
       </Button>

@@ -85,7 +85,7 @@ test("admin signs in with the same mobile + OTP and lands on a dashboard without
   await expect(p.getByText("Revenue (paid orders)")).toBeVisible();
   const nav = p.getByRole("navigation", { name: "Admin" });
   for (const item of ["Orders", "Products", "Inventory", "Customers", "Coupons", "Reports", "Notifications", "Settings", "Team", "Audit log"]) {
-    await expect(nav.getByRole("link", { name: item })).toBeVisible();
+    await expect(nav.getByRole("link", { name: item, exact: true })).toBeVisible();
   }
   await expect(p.getByRole("contentinfo")).toHaveCount(0); // the storefront footer is hidden
   await expect(p.getByRole("link", { name: "Skip to content" })).toBeHidden();
@@ -275,9 +275,9 @@ test("admin adds a staff member; they see only what their role allows", async ()
   await loginAs(s, STAFF2, { next: "/admin" });
   await expect(s).toHaveURL(/\/admin$/);
   const nav = s.getByRole("navigation", { name: "Admin" });
-  await expect(nav.getByRole("link", { name: "Inventory" })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "Products" })).toBeVisible();
-  for (const hidden of ["Team", "Settings", "Reports", "Orders", "Coupons"]) await expect(nav.getByRole("link", { name: hidden })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "Inventory", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Products", exact: true })).toBeVisible();
+  for (const hidden of ["Team", "Settings", "Reports", "Orders", "Coupons"]) await expect(nav.getByRole("link", { name: hidden, exact: true })).toHaveCount(0);
   // even if they type the address, the server says no
   await s.goto("/admin/team");
   await expect(s.getByText("You don't have permission to do that.")).toBeVisible();
@@ -324,6 +324,266 @@ test("inventory adjustments are recorded and refused below zero", async () => {
   await expect(p.getByText("Received more units")).toBeVisible();
 });
 
+const PRIVACY_CUSTOMER = "9444444444";
+
+async function signUp(page, mobile, name, { optIn = false } = {}) {
+  await page.goto("/login");
+  await expect(page.locator("[data-collection-notice]:visible")).toContainText("Mobile number"); // the notice is shown before anything is asked
+  await page.getByLabel("Mobile number").fill(mobile);
+  await page.getByRole("button", { name: "Send code" }).click();
+  await expect(page.getByRole("heading", { name: "Enter the code" })).toBeVisible();
+  const code = await latestCode(mobile);
+  for (let i = 0; i < 6; i++) await page.getByLabel(`Digit ${i + 1} of 6`).fill(code[i]);
+  await expect(page.getByRole("heading", { name: /One last thing/ })).toBeVisible();
+  const box = page.getByRole("checkbox", { name: /Send me offers and product news on WhatsApp/ });
+  await expect(box).not.toBeChecked(); // never pre-ticked
+  if (optIn) await box.check();
+  await page.getByLabel("Full name").fill(name);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL(/\/account$/);
+}
+
+test("privacy settings: staff name the privacy contact, publish the policy, and the public page shows real details only", async () => {
+  const p = pages.admin;
+  await p.goto("/admin/privacy/policy");
+  await expect(p.getByRole("alert").filter({ hasText: "Before you can publish" })).toBeVisible(); // locked until the privacy contact exists
+  await expect(p.getByRole("button", { name: "Publish this version" })).toBeDisabled();
+  await p.goto("/admin/privacy/settings");
+  await p.getByLabel("Name", { exact: true }).fill("Asha Rao");
+  await p.getByLabel("Role or title").fill("Privacy lead");
+  await p.getByLabel("Email", { exact: true }).fill("privacy@example.test");
+  await p.getByRole("button", { name: "Save privacy settings" }).click();
+  await expect(p.getByText("Privacy settings saved.")).toBeVisible();
+
+  await p.goto("/admin/privacy/policy");
+  await expect(p.getByRole("alert").filter({ hasText: "Before you can publish" })).toHaveCount(0);
+  await p.getByRole("button", { name: "Publish this version" }).click();
+  await expect(p.getByText("Privacy policy published.")).toBeVisible();
+
+  const g = pages.guest;
+  await g.goto("/privacy-policy");
+  await expect(g.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeVisible();
+  await expect(g.getByRole("heading", { level: 2, name: "1. Who we are" })).toBeVisible();
+  await expect(g.getByRole("heading", { level: 2, name: "19. Changes to this policy" })).toBeVisible();
+  const main = g.getByRole("main");
+  await expect(main).toContainText("Beaver Learning Pvt Ltd");
+  await expect(main).toContainText("Asha Rao");
+  await expect(main).toContainText("privacy@example.test");
+  await expect(main.getByRole("cell", { name: "Razorpay" })).toBeVisible(); // the live processor registry
+  await expect(main).toContainText("within 90 days");
+  await expect(main).not.toContainText("{{");
+  await expect(main).not.toContainText("not provided yet");
+  await g.screenshot({ path: `${SHOTS}/privacy-policy-desktop.png`, fullPage: true });
+});
+
+test("a new customer sees the notice first, offers are unticked, consent is recorded, shown in history, and withdrawn in one tap", async () => {
+  const p = pages.guest;
+  await signUp(p, PRIVACY_CUSTOMER, "Priya Nair", { optIn: true });
+
+  await p.goto("/account/privacy/consents");
+  const row = p.getByRole("listitem").filter({ hasText: "Offers and product news on WhatsApp" });
+  await expect(row.getByText("On", { exact: true })).toBeVisible();
+  await expect(p.getByRole("cell", { name: "Turned on" })).toBeVisible();
+
+  await p.getByRole("button", { name: "Turn off: Offers and product news on WhatsApp" }).click();
+  await expect(p.getByText("Turned off. We have stopped this use.")).toBeVisible();
+  await expect(row.getByText("Off", { exact: true })).toBeVisible();
+  await expect(p.getByRole("cell", { name: "Turned off" })).toBeVisible();
+  await expect(p.getByRole("cell", { name: "Turned on" })).toBeVisible(); // history keeps both
+
+  await p.getByRole("button", { name: "Turn on: Offers and product news on WhatsApp" }).click(); // giving it again is a deliberate tap
+  await expect(row.getByText("On", { exact: true })).toBeVisible();
+  await p.screenshot({ path: `${SHOTS}/account-privacy-consents-desktop.png`, fullPage: true });
+
+  // the withdrawal also created an automatically completed request, visible in the history
+  await p.goto("/account/privacy/requests");
+  await expect(p.getByText("Consent withdrawal").first()).toBeVisible();
+  await expect(p.getByText("Completed").first()).toBeVisible();
+});
+
+test("rights: an access request right after login works and shows the data and who it is shared with; a grievance is tracked and answered by staff", async () => {
+  const p = pages.guest;
+  await p.goto("/account/privacy");
+  await expect(p.getByRole("heading", { level: 1, name: "Privacy and your data" })).toBeVisible();
+  await expect(p.getByText("privacy@example.test").first()).toBeVisible(); // the published privacy contact
+  await expect(p.getByText("Priya Nair").first()).toBeVisible();
+
+  await p.getByRole("button", { name: "View full summary" }).click();
+  const summary = p.getByRole("dialog", { name: "Summary of the personal data we hold" });
+  await expect(summary.getByText("Razorpay")).toBeVisible();
+  await expect(summary.getByText("Who it is shared with")).toBeVisible();
+  await expect(summary).not.toContainText("Ravi Kumar"); // another customer's data never appears
+  await summary.getByRole("button", { name: "Close" }).last().click();
+
+  await p.getByRole("button", { name: "What data do you hold about me?" }).click();
+  await p.getByRole("dialog").getByRole("button", { name: "Send request" }).click();
+  await expect(p.getByText(/Request PR-\d{4}-\d{6} sent\./)).toBeVisible();
+
+  await p.goto("/account/privacy/grievances");
+  await expect(p.getByText("within 90 days at most").or(p.getByText("within", { exact: false }).first())).toBeVisible();
+  await p.getByRole("button", { name: "Send a grievance" }).first().click();
+  const dlg = p.getByRole("dialog", { name: "Send a grievance" });
+  await dlg.getByLabel("Short title").fill("Unwanted calls");
+  await dlg.getByLabel("What happened?").fill("I received calls about an offer although I did not choose offers.");
+  await dlg.getByRole("button", { name: "Send grievance" }).click();
+  const toast = await p.getByText(/Request PR-\d{4}-\d{6} sent\./).textContent();
+  shared.grievanceId = toast.match(/PR-\d{4}-\d{6}/)[0];
+  const card = p.locator(`[data-request-id="${shared.grievanceId}"]`);
+  await expect(card).toContainText("Grievance");
+  await expect(card).toContainText("Submitted");
+  await expect(card).toContainText("We will respond by");
+});
+
+test("staff handle the grievance end to end: review, respond, resolve, complete; the customer sees the answer", async () => {
+  const a = pages.admin;
+  await a.goto("/admin/privacy/grievances");
+  await a.getByRole("cell", { name: shared.grievanceId }).click();
+  const d = a.getByRole("dialog", { name: shared.grievanceId });
+  await expect(d).toContainText("Unwanted calls");
+  await expect(d).toContainText("Identity check"); // the login code time is recorded on every request
+  await expect(d).toContainText("Respond by");
+  await expect(d.getByRole("button", { name: "Completed" })).toHaveCount(0); // cannot jump straight to completed: the button is not offered yet
+  await d.getByRole("button", { name: "Approved" }).click();
+  await expect(a.getByText("Moved to approved.")).toBeVisible();
+  await d.getByLabel("Response", { exact: true }).fill("We stopped the calls and removed the number from the call list.");
+  await d.getByRole("button", { name: "Send response" }).click();
+  await expect(a.getByText("Response sent.")).toBeVisible();
+  await d.getByLabel("What was done, or why it was refused").fill("Calls stopped; process corrected.");
+  await d.getByRole("button", { name: "Save resolution" }).click();
+  await expect(a.getByText("Resolution saved.")).toBeVisible();
+  await d.getByRole("button", { name: "Completed" }).click();
+  await expect(a.getByText("Moved to completed.")).toBeVisible();
+
+  const p = pages.guest;
+  await p.goto("/account/privacy/requests");
+  const card = p.locator(`[data-request-id="${shared.grievanceId}"]`);
+  await expect(card).toContainText("Completed");
+  await card.getByRole("button", { name: "Show details and response" }).click();
+  await expect(card).toContainText("We stopped the calls");
+  await expect(card).toContainText("Calls stopped; process corrected.");
+  await expect(card).not.toContainText("Internal"); // staff notes never reach the customer
+  await p.screenshot({ path: `${SHOTS}/account-privacy-requests-desktop.png`, fullPage: true });
+});
+
+test("the cookie banner appears only when staff say an optional tool is installed; Accept and Reject look the same; choices persist and can be reopened", async () => {
+  const a = pages.admin;
+  const g = pages.shopper;
+  await g.goto("/");
+  await g.waitForLoadState("networkidle");
+  await expect(g.getByRole("region", { name: "Cookie choices" })).toHaveCount(0); // nothing optional yet: no banner
+
+  await a.goto("/admin/privacy/settings");
+  await a.getByRole("checkbox", { name: /An analytics or marketing tool is installed/ }).check();
+  await a.getByRole("button", { name: "Save privacy settings" }).click();
+  await expect(a.getByText("Privacy settings saved.")).toBeVisible();
+
+  await g.goto("/");
+  const banner = g.getByRole("region", { name: "Cookie choices" });
+  await expect(banner).toBeVisible();
+  const accept = await banner.getByRole("button", { name: "Accept optional" }).boundingBox();
+  const reject = await banner.getByRole("button", { name: "Reject optional" }).boundingBox();
+  expect(Math.abs(accept.height - reject.height), "rejecting is not harder than accepting").toBeLessThan(1);
+  expect(Math.abs(accept.width - reject.width)).toBeLessThan(1);
+  await g.screenshot({ path: `${SHOTS}/cookie-banner-desktop.png` });
+
+  await banner.getByRole("button", { name: "Reject optional" }).click();
+  await expect(banner).toBeHidden();
+  const stored = JSON.parse(await g.evaluate(() => localStorage.getItem("bl_cookie_prefs")));
+  expect(stored).toMatchObject({ analytics: false, marketing: false });
+  await g.reload();
+  await g.waitForLoadState("networkidle");
+  await expect(g.getByRole("region", { name: "Cookie choices" })).toHaveCount(0); // remembered
+
+  await g.getByRole("contentinfo").getByRole("button", { name: "Cookie settings" }).click();
+  const dlg = g.getByRole("dialog", { name: "Cookie settings" });
+  await expect(dlg.getByRole("switch", { name: "Essential" })).toBeDisabled();
+  await expect(dlg.getByRole("switch", { name: "Analytics" })).not.toBeChecked();
+  await dlg.getByRole("switch", { name: "Analytics" }).check();
+  await dlg.getByRole("button", { name: "Save preferences" }).click();
+  await expect(dlg).toBeHidden();
+  const saved = JSON.parse(await g.evaluate(() => localStorage.getItem("bl_cookie_prefs")));
+  expect(saved).toMatchObject({ analytics: true, marketing: false });
+  // the choice is also recorded on the server
+  await expect.poll(async () => (await (await fetch(`http://localhost:${API_PORT}/api/v1/privacy/cookie-preferences/${saved.prefId}`)).json()).data?.analytics).toBe(true);
+
+  // leave the store as we found it
+  await a.goto("/admin/privacy/settings");
+  await a.getByRole("checkbox", { name: /An analytics or marketing tool is installed/ }).uncheck();
+  await a.getByRole("button", { name: "Save privacy settings" }).click();
+  await expect(a.getByText("Privacy settings saved.")).toBeVisible();
+});
+
+test("the contact form sends a message to the store when signed in or not", async () => {
+  const g = pages.guest;
+  await g.goto("/contact");
+  await g.getByLabel("Your name").fill("Priya Nair");
+  await g.getByLabel("Email").fill("priya@example.test");
+  await g.getByLabel("Message").fill("Which kit is best for a 12 year old?");
+  await expect(g.locator("[data-collection-notice]:visible")).toContainText("Reply to your question");
+  await g.getByRole("button", { name: "Send message" }).click();
+  await expect(g.getByRole("heading", { name: "Message sent" })).toBeVisible();
+});
+
+test("breach incidents and retention: staff can report an incident (72-hour clock) and preview retention without changing data", async () => {
+  const a = pages.admin;
+  await a.goto("/admin/privacy/incidents");
+  await a.getByRole("button", { name: "Report an incident" }).first().click();
+  const dlg = a.getByRole("dialog", { name: "Report an incident" });
+  await dlg.getByLabel("Title").fill("Test: export link exposed");
+  await dlg.getByLabel("What happened").fill("A customer export was reachable by link for a short time.");
+  await dlg.getByRole("button", { name: "Record incident" }).click();
+  const detail = a.getByRole("dialog", { name: /^BR-\d{4}-\d{3}$/ });
+  await expect(detail).toContainText("Discovered (the 72-hour clock starts here)");
+  await expect(detail).toContainText("Nothing is ever sent automatically");
+  await expect(detail).toContainText("Board report outline");
+  await detail.getByRole("button", { name: "Close" }).last().click();
+  await expect(a.getByRole("cell", { name: /^BR-\d{4}-\d{3}$/ })).toBeVisible();
+
+  await a.goto("/admin/privacy/retention");
+  await expect(a.getByRole("cell", { name: "Security and audit logs" })).toBeVisible();
+  await expect(a.getByRole("row", { name: /Orders, invoices and shipments/ })).toContainText("Not applicable"); // never deleted automatically
+  await a.getByRole("button", { name: "Preview a run" }).click();
+  await expect(a.getByText("Preview (nothing was changed)")).toBeVisible();
+  await a.getByRole("cell", { name: "Security and audit logs" }).click();
+  await a.getByRole("dialog").getByLabel("Retention period (days)").fill("100");
+  await a.getByRole("dialog").getByRole("button", { name: "Save" }).click();
+  await expect(a.getByRole("alert").filter({ hasText: /365/ }).first()).toBeVisible(); // the one-year floor is enforced
+  await a.screenshot({ path: `${SHOTS}/admin-privacy-retention-desktop.png`, fullPage: true });
+});
+
+test("the Privacy & Compliance sidebar group is for privacy staff only", async () => {
+  const a = pages.admin;
+  await a.goto("/admin/privacy");
+  const nav = a.getByRole("navigation", { name: "Admin" });
+  await expect(nav.getByText("Privacy & Compliance")).toBeVisible();
+  for (const l of ["Overview", "Data inventory", "Consent records", "Privacy requests", "Grievances", "Children's data", "Breach incidents", "Retention", "Processors", "Privacy policy", "Privacy settings", "Privacy audit trail"]) {
+    await expect(nav.getByRole("link", { name: l, exact: true })).toBeVisible();
+  }
+  await expect(a.getByRole("heading", { name: "Privacy overview" })).toBeVisible();
+  await expect(a.getByText("Real figures from the database")).toBeVisible();
+  await a.screenshot({ path: `${SHOTS}/admin-privacy-overview-desktop.png`, fullPage: true });
+
+  const s = pages.staff2; // an order manager
+  await s.goto("/admin");
+  await expect(s.getByRole("navigation", { name: "Admin" }).getByText("Privacy & Compliance")).toHaveCount(0);
+  await s.goto("/admin/privacy");
+  await expect(s.getByRole("alert")).toBeVisible(); // the backend refuses; the page says so
+});
+
+test.describe("privacy pages: accessibility", () => {
+  for (const path of ["/account/privacy", "/account/privacy/requests", "/account/privacy/consents", "/account/privacy/grievances", "/privacy-policy", "/cookie-policy", "/terms-and-conditions"]) {
+    test(`no serious or critical accessibility violations on ${path}`, async () => {
+      const p = pages.guest;
+      await p.goto(path);
+      await p.waitForLoadState("networkidle");
+      await p.waitForTimeout(400);
+      const results = await new AxeBuilder({ page: p }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+      const bad = results.violations.filter((v) => ["serious", "critical"].includes(v.impact));
+      expect(bad.map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+    });
+  }
+});
+
 test.describe("admin layout and accessibility", () => {
   test("the sidebar becomes a drawer on a phone, with no sideways scrolling", async ({ browser }, info) => {
     const ctx = await browser.newContext({ baseURL: info.project.use.baseURL, viewport: { width: 375, height: 812 }, storageState: await contexts.admin.storageState() });
@@ -342,7 +602,7 @@ test.describe("admin layout and accessibility", () => {
     await ctx.close();
   });
 
-  for (const path of ["/admin", "/admin/orders", "/admin/products", "/admin/products/new", "/admin/inventory", "/admin/customers", "/admin/coupons", "/admin/reports", "/admin/settings", "/admin/team", "/admin/notifications"]) {
+  for (const path of ["/admin", "/admin/orders", "/admin/products", "/admin/products/new", "/admin/inventory", "/admin/customers", "/admin/coupons", "/admin/reports", "/admin/settings", "/admin/team", "/admin/notifications", "/admin/privacy", "/admin/privacy/data-inventory", "/admin/privacy/consents", "/admin/privacy/requests", "/admin/privacy/grievances", "/admin/privacy/children", "/admin/privacy/incidents", "/admin/privacy/retention", "/admin/privacy/processors", "/admin/privacy/policy", "/admin/privacy/settings", "/admin/privacy/audit"]) {
     test(`no serious or critical accessibility violations on ${path}`, async () => {
       const p = pages.admin;
       await p.goto(path);

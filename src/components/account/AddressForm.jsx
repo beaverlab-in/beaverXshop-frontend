@@ -1,5 +1,6 @@
 "use client";
 
+import CollectionNotice from "@/components/account/privacy/CollectionNotice";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
@@ -42,6 +43,7 @@ export default function AddressForm({ initial, defaultName = "", defaultMobile =
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
+      <CollectionNotice context="address" />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Full name" autoComplete="name" value={values.fullName} onChange={set("fullName")} error={errors.fullName} />
         <Field label="Mobile number" type="tel" inputMode="tel" autoComplete="tel-national" value={values.mobile} onChange={set("mobile")} error={errors.mobile} />

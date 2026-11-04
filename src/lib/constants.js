@@ -6,6 +6,10 @@ export const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+/** The privacy policy, terms and cookie policy have their own top-level pages; every other legal page lives under /legal/. */
+const TOP_LEVEL_LEGAL = new Set(["privacy-policy", "terms-and-conditions", "cookie-policy"]);
+export const legalHref = (slug) => (TOP_LEVEL_LEGAL.has(slug) ? `/${slug}` : `/legal/${slug}`);
+
 export const LEGAL_PAGES = [
   { slug: "privacy-policy", title: "Privacy Policy" },
   { slug: "terms-and-conditions", title: "Terms and Conditions" },

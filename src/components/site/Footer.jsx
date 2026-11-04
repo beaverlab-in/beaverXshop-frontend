@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { cacheLife } from "next/cache";
 import Logo from "@/components/site/Logo";
-import { LEGAL_PAGES } from "@/lib/constants";
+import { LEGAL_PAGES, legalHref } from "@/lib/constants";
+import { CookieSettingsLink } from "@/components/site/CookieConsent";
 import { getCategories } from "@/lib/data/catalog";
 import { getPublicSettings } from "@/lib/data/settings";
 import { BRAND_NAME, IS_DEMO } from "@/lib/env";
@@ -210,11 +211,19 @@ export default async function Footer() {
             <ul className="flex flex-wrap gap-x-5 gap-y-1">
               {LEGAL_PAGES.filter((p) => ["privacy-policy", "terms-and-conditions", "cookie-policy"].includes(p.slug)).map((p) => (
                 <li key={p.slug}>
-                  <Link href={`/legal/${p.slug}`} className={linkCls}>
+                  <Link href={legalHref(p.slug)} className={linkCls}>
                     {p.title}
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsLink className={linkCls} />
+              </li>
+              <li>
+                <Link href="/account/privacy" className={linkCls}>
+                  Privacy requests
+                </Link>
+              </li>
               <li>
                 <a href="#main" className={linkCls}>
                   Back to top

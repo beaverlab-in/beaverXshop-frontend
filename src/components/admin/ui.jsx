@@ -56,7 +56,8 @@ export function StatCard({ label, value, hint, tone = "default", href }) {
 export function DataTable({ columns, rows, loading = false, empty = "Nothing to show yet.", rowKey = (r) => r.id, onRowClick, caption }) {
   const first = loading && !rows;
   return (
-    <div className="overflow-x-auto">
+    // Keyboard users can scroll a wide table: the scroll area is focusable and named.
+    <div className="overflow-x-auto" tabIndex={0} role="region" aria-label={caption ?? "Table"}>
       <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>

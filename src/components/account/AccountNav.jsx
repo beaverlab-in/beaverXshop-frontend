@@ -10,6 +10,7 @@ const items = [
   { href: "/account/orders", label: "My orders" },
   { href: "/account/addresses", label: "Saved addresses" },
   { href: "/account/settings", label: "Account settings" },
+  { href: "/account/privacy", label: "Privacy" },
 ];
 
 export default function AccountNav() {

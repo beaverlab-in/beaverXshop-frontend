@@ -1,5 +1,6 @@
 "use client";
 
+import CollectionNotice from "@/components/account/privacy/CollectionNotice";
 import Link from "next/link";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
@@ -223,6 +224,7 @@ export default function CheckoutFlow() {
                 <Field label="Mobile number" value={formatMobile(user?.mobile)} readOnly disabled hint="Verified with a one-time code." />
                 <Field label="Full name" autoComplete="name" value={details.name} onChange={(e) => setDetails({ ...details, name: e.target.value })} error={detailErrors.name} />
                 <Field label="Email" optional type="email" autoComplete="email" value={details.email} onChange={(e) => setDetails({ ...details, email: e.target.value })} error={detailErrors.email} hint="We'll send your receipt here." />
+                <CollectionNotice context="checkout" />
                 <Button type="submit" size="lg" loading={busy}>Continue to address</Button>
               </form>
             </Card>

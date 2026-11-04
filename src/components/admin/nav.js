@@ -1,4 +1,4 @@
-import { BoxesIcon, ChartIcon, DashboardIcon, ListIcon, MessageIcon, ReceiptIcon, SettingsIcon, ShieldIcon, TagIcon, UsersIcon, PackageIcon, BookIcon } from "@/components/ui/Icons";
+import { BoxesIcon, ChartIcon, DashboardIcon, ListIcon, LockIcon, MessageIcon, ReceiptIcon, SettingsIcon, ShieldIcon, TagIcon, UsersIcon, PackageIcon, BookIcon } from "@/components/ui/Icons";
 
 // The UI only HIDES what a role can't use. The backend enforces every permission on every request.
 export const ADMIN_NAV = [
@@ -14,6 +14,27 @@ export const ADMIN_NAV = [
   { href: "/admin/settings", label: "Settings", icon: SettingsIcon, permission: "settings:read" },
   { href: "/admin/team", label: "Team", icon: ShieldIcon, permission: "admins:manage" },
   { href: "/admin/audit-log", label: "Audit log", icon: BookIcon, permission: "audit:read" },
+  // A group: shown when the role holds at least one of its pages; each page is filtered by its own permission.
+  {
+    href: "/admin/privacy",
+    label: "Privacy & Compliance",
+    icon: LockIcon,
+    group: true,
+    children: [
+      { href: "/admin/privacy", label: "Overview", permission: "privacy.view", exact: true },
+      { href: "/admin/privacy/data-inventory", label: "Data inventory", permission: "privacy.view" },
+      { href: "/admin/privacy/consents", label: "Consent records", permission: "privacy.consent.view" },
+      { href: "/admin/privacy/requests", label: "Privacy requests", permission: "privacy.requests.manage" },
+      { href: "/admin/privacy/grievances", label: "Grievances", permission: "privacy.requests.manage" },
+      { href: "/admin/privacy/children", label: "Children's data", permission: "privacy.view" },
+      { href: "/admin/privacy/incidents", label: "Breach incidents", permission: "privacy.incidents.manage" },
+      { href: "/admin/privacy/retention", label: "Retention", permission: "privacy.retention.manage" },
+      { href: "/admin/privacy/processors", label: "Processors", permission: "privacy.view" },
+      { href: "/admin/privacy/policy", label: "Privacy policy", permission: "privacy.settings.manage" },
+      { href: "/admin/privacy/settings", label: "Privacy settings", permission: "privacy.settings.manage" },
+      { href: "/admin/privacy/audit", label: "Privacy audit trail", permission: "privacy.view" },
+    ],
+  },
 ];
 
 export const CRUMBS = {
@@ -29,5 +50,16 @@ export const CRUMBS = {
   settings: "Settings",
   team: "Team",
   "audit-log": "Audit log",
+  privacy: "Privacy & Compliance",
+  "data-inventory": "Data inventory",
+  consents: "Consent records",
+  requests: "Privacy requests",
+  grievances: "Grievances",
+  children: "Children's data",
+  incidents: "Breach incidents",
+  retention: "Retention",
+  processors: "Processors",
+  policy: "Privacy policy",
+  audit: "Privacy audit trail",
   new: "New",
 };

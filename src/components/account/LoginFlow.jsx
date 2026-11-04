@@ -10,6 +10,8 @@ import { Card } from "@/components/ui/Layout";
 import { LockIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
+import CollectionNotice, { ConsentCheckbox, useCollectionNotice } from "@/components/account/privacy/CollectionNotice";
+import { grantConsent } from "@/lib/client/privacyApi";
 import { DEMO_OTP, requestOtp, verifyOtp } from "@/lib/client/accountApi";
 import { formatMobile, isValidEmail, normalizeMobile } from "@/lib/validation";
 import { IS_DEMO } from "@/lib/env";
@@ -23,6 +25,9 @@ export default function LoginFlow() {
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
+  const reauth = params.get("reauth") === "1"; // a signed-in person confirming their identity again with a new code
+  const notice = useCollectionNotice();
+  const [marketing, setMarketing] = useState(false);
   const { signIn, updateProfile, status, user } = useAuth();
   const toast = useToast();
 
@@ -40,8 +45,8 @@ export default function LoginFlow() {
 
   // Already signed in: nothing to do here.
   useEffect(() => {
-    if (status === "authed" && step === "mobile" && user) router.replace(next);
-  }, [status, step, user, router, next]);
+    if (status === "authed" && step === "mobile" && user && !reauth) router.replace(next);
+  }, [status, step, user, router, next, reauth]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -80,7 +85,7 @@ export default function LoginFlow() {
     setBusy(true);
     setError("");
     try {
-      const u = await verifyOtp(mobile, code);
+      const u = await verifyOtp(mobile, code, notice?.version);
       signIn(u);
       if (!u.name) {
         setStep("profile");
@@ -107,6 +112,10 @@ export default function LoginFlow() {
     setBusy(true);
     try {
       await updateProfile(profile);
+      if (marketing && !IS_DEMO && notice) {
+        // The optional offers choice is recorded separately, with the notice version that was on screen.
+        await grantConsent("marketing_whatsapp", notice.version, "login").catch(() => toast.info("We could not save your offers choice. You can set it in Account > Privacy."));
+      }
       toast.success("Welcome aboard!");
       router.replace(next);
     } catch (err) {
@@ -157,10 +166,11 @@ export default function LoginFlow() {
           <Button type="submit" size="lg" block className="mt-6" loading={busy}>
             Send code
           </Button>
+          <CollectionNotice context="login" className="mt-5" />
           <p className="mt-4 text-center text-xs text-muted">
-            By continuing you agree to our{" "}
-            <Link href="/legal/terms-and-conditions" className="underline underline-offset-2">Terms</Link> and{" "}
-            <Link href="/legal/privacy-policy" className="underline underline-offset-2">Privacy Policy</Link>.
+            Read our{" "}
+            <Link href="/terms-and-conditions" className="underline underline-offset-2">Terms</Link> and{" "}
+            <Link href="/privacy-policy" className="underline underline-offset-2">Privacy Policy</Link>.
           </p>
         </form>
       )}
@@ -204,6 +214,17 @@ export default function LoginFlow() {
             <Field label="Full name" autoComplete="name" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} error={profileErrors.name} autoFocus />
             <Field label="Email" optional type="email" autoComplete="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} error={profileErrors.email} hint="For order receipts. We won't spam you." />
           </div>
+          {!IS_DEMO && (
+            <ConsentCheckbox
+              id="consent-marketing"
+              className="mt-4"
+              label="Send me offers and product news on WhatsApp"
+              description="Only if you tick this. Order messages are sent either way, and you can stop offers any time in Account > Privacy."
+              checked={marketing}
+              onChange={setMarketing}
+            />
+          )}
+          <CollectionNotice context={["login", "marketing"]} className="mt-4" />
           {error && <p className="mt-3 text-sm font-medium text-danger" role="alert">{error}</p>}
           <Button type="submit" size="lg" block className="mt-6" loading={busy}>
             Continue

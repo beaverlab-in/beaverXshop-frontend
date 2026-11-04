@@ -6,6 +6,8 @@ import JsonLd from "@/components/site/JsonLd";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { CartProvider } from "@/providers/CartProvider";
+import { PrivacyProvider } from "@/providers/PrivacyProvider";
+import CookieConsent from "@/components/site/CookieConsent";
 import CartSync from "@/components/site/CartSync";
 import { getPublicSettings } from "@/lib/data/settings";
 import { BRAND_NAME, SITE_URL } from "@/lib/env";
@@ -32,6 +34,7 @@ export default async function RootLayout({ children }) {
         <JsonLd data={organizationJsonLd(company)} />
         <ToastProvider>
           <AuthProvider>
+            <PrivacyProvider>
             <CartProvider>
               <CartSync />
               {/* data-site-chrome lets the admin layout hide the shop header/footer (see app/admin/layout.js) */}
@@ -45,6 +48,8 @@ export default async function RootLayout({ children }) {
                 <Footer />
               </div>
             </CartProvider>
+            <CookieConsent />
+            </PrivacyProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

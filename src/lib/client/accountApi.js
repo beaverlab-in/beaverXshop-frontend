@@ -19,8 +19,9 @@ export async function requestOtp(mobile) {
   return { cooldownSeconds: 30, expiresInSeconds: 300, mode: "demo" };
 }
 
-export async function verifyOtp(mobile, otp) {
-  if (!IS_DEMO) return apiFetch("/auth/otp/verify", { method: "POST", body: { mobile, otp } });
+export async function verifyOtp(mobile, otp, noticeVersion) {
+  // noticeVersion = the collection notice shown on the login screen, recorded as proof of what the person was told.
+  if (!IS_DEMO) return apiFetch("/auth/otp/verify", { method: "POST", body: { mobile, otp, ...(noticeVersion ? { noticeVersion } : {}) } });
   if (otp !== DEMO_OTP) throw fail("That code is not correct. Please check and try again.");
   const existing = readJSON(KEYS.session, null);
   const user = existing?.mobile === mobile ? existing : { id: `demo-${mobile}`, mobile, name: "", email: "" };

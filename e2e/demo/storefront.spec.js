@@ -488,7 +488,7 @@ test("unknown URLs show a helpful 404 and unpublished legal pages say so", async
   const res = await page.goto("/definitely-not-a-page");
   expect(res.status()).toBe(404);
   await expect(page.getByRole("heading", { name: /couldn.t find that page/ })).toBeVisible();
-  await page.goto("/legal/privacy-policy");
+  await page.goto("/legal/warranty-policy");
   await expect(page.getByText(/hasn.t been published yet/)).toBeVisible();
 });
 
@@ -504,7 +504,7 @@ test("contact form validates and (in demo mode) says nothing was sent", async ({
 });
 
 test.describe("accessibility (axe, including colour contrast)", () => {
-  const pages = ["/", "/products", "/search?q=kit", "/products/circuit-starter-kit", "/products/smart-home-iot-kit", "/cart", "/login", "/contact", "/faq", "/about", "/legal/privacy-policy"];
+  const pages = ["/", "/products", "/search?q=kit", "/products/circuit-starter-kit", "/products/smart-home-iot-kit", "/cart", "/login", "/contact", "/faq", "/about", "/privacy-policy", "/terms-and-conditions", "/cookie-policy", "/legal/warranty-policy"];
   for (const path of pages) {
     test(`no serious or critical violations on ${path}`, async ({ page }) => {
       await page.goto(path);
@@ -561,5 +561,106 @@ test.describe("links", () => {
       if (res.status() >= 400) bad.push(`${res.status()} ${h}`);
     }
     expect(bad).toEqual([]);
+  });
+});
+
+test.describe("privacy and legal pages", () => {
+  test("the old /legal/ addresses of the privacy policy, terms and cookie policy redirect permanently", async ({ request }) => {
+    for (const slug of ["privacy-policy", "terms-and-conditions", "cookie-policy"]) {
+      const res = await request.get(`/legal/${slug}`, { maxRedirects: 0 });
+      expect(res.status(), slug).toBe(308);
+      expect(res.headers().location).toMatch(new RegExp(`/${slug}$`));
+    }
+    expect((await request.get("/legal/warranty-policy", { maxRedirects: 0 })).status()).toBe(200); // other legal pages stay put
+  });
+
+  test("the privacy policy and terms say so when staff have not published them (no invented text)", async ({ page }) => {
+    for (const [path, title] of [["/privacy-policy", "Privacy Policy"], ["/terms-and-conditions", "Terms and Conditions"]]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+      await expect(page.getByText(/hasn.t been published yet/)).toBeVisible();
+    }
+  });
+
+  test("the cookie policy lists exactly what the site sets and says no optional cookies are used", async ({ page }) => {
+    await page.goto("/cookie-policy");
+    await expect(page.getByRole("heading", { level: 1, name: "Cookie Policy" })).toBeVisible();
+    await expect(page.getByText("No optional (analytics or marketing) cookies are in use")).toBeVisible();
+    for (const h of ["Essential", "Analytics", "Marketing and advertising"]) await expect(page.getByRole("heading", { level: 2, name: h })).toBeVisible();
+    await expect(page.getByRole("cell", { name: /bls_sid/ })).toBeVisible();
+    await expect(page.getByRole("cell", { name: /bls_cart_v1/ })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "Razorpay Checkout (checkout.razorpay.com)" })).toBeVisible();
+    await expect(page.getByRole("row", { name: /Analytics none installed/ })).toBeVisible();
+    await page.getByRole("button", { name: "Open cookie settings" }).click();
+    await expect(page.getByRole("dialog", { name: "Cookie settings" })).toBeVisible();
+  });
+
+  test("the footer links to the policies, reopens cookie settings, and the dialog closes with Escape", async ({ page }) => {
+    await page.goto("/");
+    const foot = page.getByRole("contentinfo");
+    await expect(foot.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy-policy");
+    await expect(foot.getByRole("link", { name: "Terms and Conditions" })).toHaveAttribute("href", "/terms-and-conditions");
+    await expect(foot.getByRole("link", { name: "Cookie Policy" })).toHaveAttribute("href", "/cookie-policy");
+    await expect(foot.getByRole("link", { name: "Privacy requests" })).toHaveAttribute("href", "/account/privacy");
+    await foot.getByRole("button", { name: "Cookie settings" }).click();
+    const dialog = page.getByRole("dialog", { name: "Cookie settings" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText("only essential cookies")).toBeVisible(); // nothing optional to switch on
+    await expect(dialog.getByRole("switch", { name: "Analytics" })).toHaveCount(0);
+    await expect(dialog.getByRole("switch", { name: "Essential" })).toBeDisabled();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+  });
+
+  test("there is no cookie banner while only essential cookies are used", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("region", { name: "Cookie choices" })).toHaveCount(0);
+  });
+
+  test("the login page shows a standalone collection notice with data, purpose, rights and the Board, and asks for no blanket agreement", async ({ page }) => {
+    await page.goto("/login");
+    const notice = page.locator("[data-collection-notice]");
+    await expect(notice).toBeVisible();
+    await expect(notice.getByRole("heading", { name: "Why we ask for this" })).toBeVisible();
+    await expect(notice).toContainText("Mobile number");
+    await expect(notice).toContainText("Enables:");
+    await notice.getByText("Your choices, rights and how to complain").click();
+    await expect(notice).toContainText("withdraw an optional consent at any time");
+    await expect(notice).toContainText("Data Protection Board of India");
+    await expect(page.getByText(/you agree to our/i)).toHaveCount(0);
+    await expect(page.getByRole("main").getByRole("link", { name: "Privacy Policy" }).first()).toHaveAttribute("href", "/privacy-policy");
+  });
+
+  test("the notice appears at the other collection points: contact form, checkout details and the address form", async ({ page }) => {
+    await page.goto("/contact");
+    await expect(page.locator("[data-collection-notice]")).toContainText("Reply to your question");
+    await page.goto("/products/circuit-starter-kit");
+    await page.getByRole("button", { name: "Buy Now" }).click();
+    await expect(page).toHaveURL(/\/login/);
+    await page.getByLabel("Mobile number").fill("9876543210");
+    await page.getByRole("button", { name: "Send code" }).click();
+    for (let i = 0; i < 6; i++) await page.getByLabel(`Digit ${i + 1} of 6`).fill("123456"[i]);
+    await page.getByLabel("Full name").fill("Asha Rao");
+    // optional marketing consent is an API-mode feature; in demo mode there is nothing to opt into
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL(/\/checkout$/);
+    await expect(page.locator("[data-collection-notice]:visible")).toContainText("Process the order");
+    await page.getByRole("button", { name: "Continue to address" }).click();
+    await expect(page.locator("[data-collection-notice]:visible")).toContainText("Deliver your orders");
+  });
+
+  test("the privacy area needs the live store: demo mode says so instead of pretending", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByLabel("Mobile number").fill("9876543210");
+    await page.getByRole("button", { name: "Send code" }).click();
+    for (let i = 0; i < 6; i++) await page.getByLabel(`Digit ${i + 1} of 6`).fill("123456"[i]);
+    await page.getByLabel("Full name").fill("Asha Rao");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.goto("/account/privacy");
+    await expect(page.getByText("Available when the store is connected")).toBeVisible();
+    for (const t of ["Overview", "My requests", "Consents", "Grievances"]) await expect(page.getByRole("navigation", { name: "Privacy sections" }).getByRole("link", { name: t })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Account" }).getByRole("link", { name: "Privacy" })).toBeVisible();
   });
 });

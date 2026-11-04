@@ -153,24 +153,50 @@ function ProfileMenu() {
   );
 }
 
+function NavLink({ href, label, Icon, active, onNavigate, sub = false }) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={`flex items-center gap-3 rounded-md px-3 font-medium transition-colors ${sub ? "min-h-9 text-sm" : "min-h-11 text-[0.95rem]"} ${active ? "bg-brand text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
+    >
+      {Icon && <Icon className="size-5" />}
+      {label}
+    </Link>
+  );
+}
+
 function SidebarNav({ pathname, permissions, onNavigate }) {
-  const items = ADMIN_NAV.filter((n) => permissions.includes(n.permission));
   return (
     <nav aria-label="Admin" className="flex-1 overflow-y-auto px-3 py-4">
       <ul className="space-y-1">
-        {items.map(({ href, label, icon: Icon, exact }) => {
-          const active = exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+        {ADMIN_NAV.map((item) => {
+          if (item.group) {
+            const kids = item.children.filter((c) => permissions.includes(c.permission));
+            if (!kids.length) return null;
+            const inGroup = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <li key={item.href}>
+                <p className={`flex min-h-11 items-center gap-3 px-3 text-[0.95rem] font-medium ${inGroup ? "text-white" : "text-slate-300"}`}>
+                  <item.icon className="size-5" />
+                  {item.label}
+                </p>
+                <ul className="mt-0.5 mb-1 ml-4 space-y-0.5 border-l border-white/10 pl-2" aria-label={item.label}>
+                  {kids.map((c) => (
+                    <li key={c.href}>
+                      <NavLink href={c.href} label={c.label} sub active={c.exact ? pathname === c.href : pathname === c.href || pathname.startsWith(`${c.href}/`)} onNavigate={onNavigate} />
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            );
+          }
+          if (!permissions.includes(item.permission)) return null;
+          const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
-            <li key={href}>
-              <Link
-                href={href}
-                onClick={onNavigate}
-                aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-[0.95rem] font-medium transition-colors ${active ? "bg-brand text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
-              >
-                <Icon className="size-5" />
-                {label}
-              </Link>
+            <li key={item.href}>
+              <NavLink href={item.href} label={item.label} Icon={item.icon} active={active} onNavigate={onNavigate} />
             </li>
           );
         })}

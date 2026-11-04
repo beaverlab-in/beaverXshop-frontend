@@ -1,4 +1,4 @@
-import { LEGAL_PAGES } from "@/lib/constants";
+import { LEGAL_PAGES, legalHref } from "@/lib/constants";
 import { getLegalPage } from "@/lib/data/settings";
 import { getProducts } from "@/lib/data/catalog";
 import { absoluteUrl } from "@/lib/env";
@@ -15,6 +15,6 @@ export default async function sitemap() {
     ...staticPages,
     ...products.map((p) => ({ url: absoluteUrl(`/products/${p.slug}`), changeFrequency: "weekly", priority: 0.8 })),
     // Only published legal pages are listed (unpublished ones are noindex).
-    ...legal.filter((p) => p?.content).map((p) => ({ url: absoluteUrl(`/legal/${p.slug}`), changeFrequency: "yearly", priority: 0.3 })),
+    ...legal.filter((p) => p?.content).map((p) => ({ url: absoluteUrl(legalHref(p.slug)), changeFrequency: "yearly", priority: 0.3 })),
   ];
 }
